@@ -1,4 +1,4 @@
-package com.acelera.squad.four.hospital;
+package com.acelera.squad.four.hospital.models;
 
 import java.util.Date;
 

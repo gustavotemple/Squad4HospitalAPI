@@ -1,11 +1,18 @@
-package com.acelera.squad.four.hospital;
+package com.acelera.squad.four.hospital.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+//@Document(collection = "hospitals")
 public class Hospital {
 	
+	//@Id
+	@JsonIgnore
 	private String id;
 	private String nome;
 	private String endereco;
 	private int leitos;
+	@JsonIgnore
+	private Sphere localizacao;
 	
 	public Hospital() {
 
