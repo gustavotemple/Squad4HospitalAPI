@@ -22,7 +22,7 @@ public class HospitalController {
 	
 	@PostMapping(path = "/hospitais")
 	public void addHospital(@RequestBody Hospital hospital) {
-		System.out.println(hospital.toString());
+		hospitalService.buscaCoordenadasPor(hospital.getEndereco());
 	}
 
 }

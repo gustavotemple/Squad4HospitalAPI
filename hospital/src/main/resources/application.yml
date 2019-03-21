@@ -1,0 +1,3 @@
+logging:
+  level:
+    com.acelera.squad.four.hospital.service.GeocodeClient: DEBUG

@@ -5,13 +5,26 @@ import java.util.List;
 
 public class Sphere {
 	
-	String type;
-	List<Integer> coordenates = new ArrayList<Integer>();
+	private String type = "Point";
+	private List<Integer> coordenates = new ArrayList<Integer>();
 	
 	public Sphere() {
-		this.type = "Point";
-		this.coordenates.add(1);
-		this.coordenates.add(2);
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(String type) {
+		this.type = type;
+	}
+
+	public List<Integer> getCoordenates() {
+		return coordenates;
+	}
+
+	public void setCoordenates(List<Integer> coordenates) {
+		this.coordenates = coordenates;
 	}
 
 }
