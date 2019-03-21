@@ -18,12 +18,11 @@ public class Hospital {
 
 	}
 
-	public Hospital(String id, String name, String address, int beds) {
-		super();
+	public Hospital(String id, String nome, String endereco, int leitos) {
 		this.id = id;
-		this.nome = name;
-		this.endereco = address;
-		this.leitos = beds;
+		this.nome = nome;
+		this.endereco = endereco;
+		this.leitos = leitos;
 	}
 
 	public String getId() {
@@ -54,7 +53,7 @@ public class Hospital {
 		return leitos;
 	}
 
-	public void setBeds(int leitos) {
+	public void setLeitos(int leitos) {
 		this.leitos = leitos;
 	}
 
