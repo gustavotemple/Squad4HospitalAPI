@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.acelera.squad.four.hospital.configuration.ApplicationConfig;
 import com.acelera.squad.four.hospital.models.Hospital;
-import com.acelera.squad.four.hospital.models.Sphere;
 import com.acelera.squad.four.hospital.repositories.HospitalRepository;
 import com.acelera.squad.four.hospital.service.HospitalService;
 
@@ -27,7 +27,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 
 @RestController
-@Api(value = "hospital")
+@Api(value = ApplicationConfig.HOSPITALS)
 @RequestMapping(path = "/v1")
 @ExposesResourceFor(Hospital.class)
 public class HospitalController {
@@ -40,22 +40,21 @@ public class HospitalController {
 	@PostMapping("/hospitais")
 	@ApiOperation(value = "Adiciona um hospital")
 	public ResponseEntity<Hospital> addHospital(@RequestBody Hospital hospital) {
-		Sphere localizacao = hospitalService.buscaCoordenadasPor(hospital.getEndereco());
-		
-		hospital.setLocalizacao(localizacao);
+		hospital.setLocalizacao(hospitalService.buscaCoordenadasPor(hospital.getEndereco()));
 		hospital.set_id(ObjectId.get());
 
 		hospitalRepository.save(hospital);
-		
+
 		hospital.add(linkTo(methodOn(HospitalController.class).getHospitalById(hospital.getObjectId())).withSelfRel());
-		
+
 		return ResponseEntity.ok().body(hospital);
 	}
 
 	@GetMapping("/hospitais")
-	@ApiOperation(value = "Retorna os hospitais mais proximos")
-	public ResponseEntity<List<Hospital>> getHospitals(@RequestParam(value="paciente", required=true) ObjectId id) {
-		return ResponseEntity.ok().body(hospitalRepository.findAll());
+	@ApiOperation(value = "Retorna os hospitais proximos de um endereco com leitos disponiveis")
+	public ResponseEntity<List<Hospital>> getHospitalsByAddress(
+			@RequestParam(value = "endereco", required = true) String endereco) {
+		return ResponseEntity.ok().body(hospitalService.buscaHospitaisPor(endereco));
 	}
 
 	@GetMapping("/hospitais/{id}")
@@ -66,11 +65,11 @@ public class HospitalController {
 
 	@DeleteMapping("/hospitais/{id}")
 	@ApiOperation(value = "Apaga um hospital")
-	public ResponseEntity<String> deleteHospital(@PathVariable ObjectId id) {		
+	public ResponseEntity<String> deleteHospital(@PathVariable ObjectId id) {
 		Hospital hospital = hospitalRepository.findBy_id(id);
-		
+
 		hospitalRepository.delete(hospital);
-		
+
 		return ResponseEntity.ok().body("Hospital " + hospital.getNome() + " apagado.");
 	}
 

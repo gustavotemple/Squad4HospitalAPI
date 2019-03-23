@@ -4,9 +4,11 @@ import java.io.Serializable;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.hateoas.ResourceSupport;
 
+import com.acelera.squad.four.hospital.configuration.ApplicationConfig;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -14,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 
-@Document(collection = "hospitals")
+@Document(collection = ApplicationConfig.HOSPITALS)
 public class Hospital extends ResourceSupport implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
@@ -25,13 +27,14 @@ public class Hospital extends ResourceSupport implements Serializable {
 	private String nome = "";
 	private String endereco = "";
 	private int leitos;
+	private int leitosDisponiveis;
 	@JsonProperty(access = Access.READ_ONLY)
-	private Sphere localizacao;
+	private GeoJsonPoint localizacao;
 	
 	public Hospital() {
 	}
 
-	@JsonProperty
+	@JsonProperty("id")
 	public String get_id() {
 		return _id.toHexString();
 	}
@@ -70,13 +73,21 @@ public class Hospital extends ResourceSupport implements Serializable {
 		this.leitos = leitos;
 	}
 
+	public int getLeitosDisponiveis() {
+		return leitosDisponiveis;
+	}
+
+	public void setLeitosDisponiveis(int leitosDisponiveis) {
+		this.leitosDisponiveis = leitosDisponiveis;
+	}
+
 	@JsonProperty
-	public Sphere getLocalizacao() {
+	public GeoJsonPoint getLocalizacao() {
 		return localizacao;
 	}
 
 	@JsonIgnore
-	public void setLocalizacao(Sphere localizacao) {
+	public void setLocalizacao(GeoJsonPoint localizacao) {
 		this.localizacao = localizacao;
 	}
 	
