@@ -28,13 +28,13 @@ public class ProdutoController {
 		return ResponseEntity.ok(produtoService.addProduto(newProduto));
 	}
 
-	@GetMapping("/produtos")
-	public ResponseEntity<Produto> getProduto(@RequestParam String id) {
-		return ResponseEntity.ok(produtoService.getProduto(id));
+	@GetMapping("/produtos/{id}")
+	public Produto getProduto(@PathVariable String id) {
+		return produtoService.getProduto(id);
 	}
 
 	@GetMapping("/produtos/todos")
-	public ResponseEntity<Object> listaBarbeiros() {
+	public ResponseEntity<Object> listarProdutos() {
 		return ResponseEntity.ok().body(produtoService.findAll());
 	}
 

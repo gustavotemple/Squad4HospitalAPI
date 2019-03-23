@@ -9,11 +9,11 @@ public class Produto {
 
 	@Id
 	private String id;
-	@Field("nome")
+	//@Field("nome")
 	private String nome;
-	@Field("descricao")
+	//@Field("descricao")
 	private String descricao;
-	@Field("quantidade")
+	//@Field("quantidade")
 	private int quantidade;
 
 	public Produto() {
