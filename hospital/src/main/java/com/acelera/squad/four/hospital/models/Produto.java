@@ -2,7 +2,7 @@ package com.acelera.squad.four.hospital.models;
 
 public class Produto {
 	
-	@Id
+	//@Id
 	private String id;
 	private String nome;
 	private String descricao;

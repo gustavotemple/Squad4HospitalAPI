@@ -6,7 +6,7 @@ import java.util.List;
 public class Sphere {
 	
 	private String type = "Point";
-	private List<Integer> coordenates = new ArrayList<Integer>();
+	private List<Float> coordenates = new ArrayList<Float>();
 	
 	public Sphere() {
 	}
@@ -15,16 +15,8 @@ public class Sphere {
 		return type;
 	}
 
-	public void setType(String type) {
-		this.type = type;
-	}
-
-	public List<Integer> getCoordenates() {
+	public List<Float> getCoordenates() {
 		return coordenates;
-	}
-
-	public void setCoordenates(List<Integer> coordenates) {
-		this.coordenates = coordenates;
 	}
 
 }

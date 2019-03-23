@@ -1,36 +1,49 @@
 package com.acelera.squad.four.hospital.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
 
-//@Document(collection = "hospitals")
-public class Hospital {
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.hateoas.ResourceSupport;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+
+@Document(collection = "hospitals")
+public class Hospital extends ResourceSupport implements Serializable {
 	
-	//@Id
-	@JsonIgnore
-	private String id;
-	private String nome;
-	private String endereco;
+	private static final long serialVersionUID = 1L;
+	
+	@Id
+	@JsonProperty(access = Access.READ_ONLY)
+	private ObjectId _id;
+	private String nome = "";
+	private String endereco = "";
 	private int leitos;
-	@JsonIgnore
+	@JsonProperty(access = Access.READ_ONLY)
 	private Sphere localizacao;
 	
 	public Hospital() {
-
 	}
 
-	public Hospital(String id, String nome, String endereco, int leitos) {
-		this.id = id;
-		this.nome = nome;
-		this.endereco = endereco;
-		this.leitos = leitos;
+	@JsonProperty
+	public String get_id() {
+		return _id.toHexString();
+	}
+	
+	@JsonIgnore
+	public ObjectId getObjectId() {
+		return _id;
 	}
 
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
+	@JsonIgnore
+	public void set_id(ObjectId _id) {
+		this._id = _id;
 	}
 
 	public String getNome() {
@@ -57,36 +70,14 @@ public class Hospital {
 		this.leitos = leitos;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((nome == null) ? 0 : nome.hashCode());
-		return result;
+	@JsonProperty
+	public Sphere getLocalizacao() {
+		return localizacao;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Hospital other = (Hospital) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		if (nome == null) {
-			if (other.nome != null)
-				return false;
-		} else if (!nome.equals(other.nome))
-			return false;
-		return true;
+	@JsonIgnore
+	public void setLocalizacao(Sphere localizacao) {
+		this.localizacao = localizacao;
 	}
-
 	
 }
