@@ -1,24 +1,28 @@
 package com.acelera.squad.four.hospital.service;
 
-import java.util.Date;
+import java.util.Collection;
 import java.util.Objects;
 
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.acelera.squad.four.hospital.models.Hospital;
 import com.acelera.squad.four.hospital.models.Paciente;
+import com.acelera.squad.four.hospital.repositories.HospitalRepository;
 import com.acelera.squad.four.hospital.repositories.PacienteRepository;
-
 
 @Service
 public class PacienteService {
 	@Autowired
 	private PacienteRepository pacienteRepository;
+	@Autowired
+	private HospitalRepository hospitalRepository;
 
-	public Paciente addPaciente(Paciente novoPaciente) {
+	public Paciente addPaciente(ObjectId hospitalId, Paciente novoPaciente) {
+		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
 
 		Paciente paciente = new Paciente();
-		paciente.setId(novoPaciente.getId());
 		paciente.setNome(novoPaciente.getNome());
 		paciente.setCheckin(novoPaciente.getCheckin());
 		paciente.setCheckout(novoPaciente.getCheckout());
@@ -27,13 +31,17 @@ public class PacienteService {
 		
 		pacienteRepository.save(paciente);
 
-		paciente.setId(novoPaciente.getId());
+		hospital.getPacientes().add(paciente);
+
+		hospitalRepository.save(hospital);
 
 		return paciente;
 	}
 
-	public Paciente getPaciente(String id) {
-		Paciente paciente = pacienteRepository.findOne(id);
+	public Paciente getPaciente(ObjectId hospitalId, String pacienteId) {
+		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
+
+		Paciente paciente = hospital.getPacientes().stream().filter(p -> pacienteId.equals(p.getId())).findFirst().orElse(null);
 		if (Objects.isNull(paciente)) {
 			/* handle this exception using {@link RestExceptionHandler} */
 			throw new NullPointerException();
@@ -41,8 +49,10 @@ public class PacienteService {
 		return new Paciente().build(paciente);
 	}
 
-	public Paciente updatePaciente(Paciente pacienteUpdate, String id) {
-		Paciente paciente = pacienteRepository.findOne(id);
+	public Paciente updatePaciente(ObjectId hospitalId, Paciente pacienteUpdate, String pacienteId) {
+		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
+
+		Paciente paciente = hospital.getPacientes().stream().filter(p -> pacienteId.equals(p.getId())).findFirst().orElse(null);
 		if (Objects.isNull(paciente)) {
 			/* handle this exception using {@link RestExceptionHandler} */
 			throw new NullPointerException();
@@ -55,15 +65,27 @@ public class PacienteService {
 		paciente.setSexo(pacienteUpdate.getSexo());
 
 		pacienteRepository.save(paciente);
+
+		hospital.getPacientes().add(paciente);
+
+		hospitalRepository.save(hospital);
 		return new Paciente().build(paciente);
 	}
 
-	public void deletePaciente(String id) {
-		pacienteRepository.delete(id);
+	public void deletePaciente(ObjectId hospitalId, String pacienteId) {
+		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
+
+		Paciente paciente = hospital.getPacientes().stream().filter(p -> pacienteId.equals(p.getId())).findFirst().orElse(null);
+
+		hospital.getPacientes().remove(paciente);
+
+		hospitalRepository.save(hospital);
 	}
 
-	public Object findAll() {
-		return pacienteRepository.findAll();
+	public Collection<Paciente> findAll(ObjectId hospitalId) {
+		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
+
+		return hospital.getPacientes();
 	}
 
 }

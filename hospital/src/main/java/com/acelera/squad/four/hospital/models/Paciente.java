@@ -3,23 +3,38 @@ package com.acelera.squad.four.hospital.models;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.TypeAlias;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "paciente")
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
+@TypeAlias("Paciente")
+@Document(collection = "pacientes")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Paciente {
+	
+	public enum Type {
+		M, F
+	}
 
 	@Id
+	@JsonProperty(access = Access.READ_ONLY)
 	private String id;
-	private String nome;
+	private String nome = "";
 	private Date checkin;
 	private Date checkout;
-	private String cpf;
-	private String sexo; // Melhor fazer uma enum
+	@Indexed(name="cpfPaciente", unique=true)
+	private String cpf = "";
+	private Paciente.Type sexo;
 
 	public Paciente() {
 	}
 
-	public Paciente(String id, String nome, Date checkin, Date checkout, String cpf, String sexo) {
+	public Paciente(String id, String nome, Date checkin, Date checkout, String cpf, Paciente.Type sexo) {
 		super();
 		this.id = id;
 		this.nome = nome;
@@ -29,10 +44,12 @@ public class Paciente {
 		this.sexo = sexo;
 	}
 
+	@JsonProperty
 	public String getId() {
 		return id;
 	}
 
+	@JsonIgnore
 	public void setId(String id) {
 		this.id = id;
 	}
@@ -69,11 +86,11 @@ public class Paciente {
 		this.cpf = cpf;
 	}
 
-	public String getSexo() {
+	public Paciente.Type getSexo() {
 		return sexo;
 	}
 
-	public void setSexo(String sexo) {
+	public void setSexo(Paciente.Type sexo) {
 		this.sexo = sexo;
 	}
 

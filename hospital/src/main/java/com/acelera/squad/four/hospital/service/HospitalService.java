@@ -1,6 +1,8 @@
 package com.acelera.squad.four.hospital.service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,16 +41,20 @@ public class HospitalService {
 		return point;
 	}
 
-	public List<Hospital> buscaHospitaisPor(final String endereco) {
-		final GeoJsonPoint localizacao = buscaCoordenadasPor(endereco);
+	public List<Hospital> buscaHospitaisPor(final String endereco, final Float lat, final Float lng) {
+		Point point;
 
-		List<Hospital> hospitals = hospitalRepository
-				.findByLocalizacaoNear(new Point(localizacao.getX(), localizacao.getY()), DISTANCE);
+		if (!Objects.isNull(endereco))
+			point = buscaCoordenadasPor(endereco);
+		else if (!Objects.isNull(lat) && !Objects.isNull(lng))
+			point = new Point(lng, lat);
+		else
+			return Collections.emptyList();
 
-		hospitals = hospitals.stream().filter(hospital -> hospital.getLeitosDisponiveis() > MINIMUM)
+		List<Hospital> hospitals = hospitalRepository.findByLocalizacaoNear(point, DISTANCE);
+
+		return hospitals.stream().filter(hospital -> hospital.getLeitosDisponiveis() > MINIMUM)
 				.collect(Collectors.toList());
-
-		return hospitals;
 	}
 
 }

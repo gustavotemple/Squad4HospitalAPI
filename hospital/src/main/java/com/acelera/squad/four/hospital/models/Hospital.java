@@ -1,10 +1,14 @@
 package com.acelera.squad.four.hospital.models;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.hateoas.ResourceSupport;
 
@@ -14,9 +18,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
+@TypeAlias("Hospital")
 @JsonIgnoreProperties(ignoreUnknown = true)
-
-@Document(collection = ApplicationConfig.HOSPITALS)
+@Document(collection = ApplicationConfig.HOSPITAIS)
 public class Hospital extends ResourceSupport implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
@@ -24,12 +28,17 @@ public class Hospital extends ResourceSupport implements Serializable {
 	@Id
 	@JsonProperty(access = Access.READ_ONLY)
 	private ObjectId _id;
+	@Indexed(name="nomeHospital", unique=true)
 	private String nome = "";
 	private String endereco = "";
-	private int leitos;
+	private int leitosTotais;
 	private int leitosDisponiveis;
 	@JsonProperty(access = Access.READ_ONLY)
 	private GeoJsonPoint localizacao;
+	@DBRef
+	private Collection<Paciente> pacientes;
+	@DBRef
+	private Collection<Produto> estoque;
 	
 	public Hospital() {
 	}
@@ -65,12 +74,12 @@ public class Hospital extends ResourceSupport implements Serializable {
 		this.endereco = endereco;
 	}
 
-	public int getLeitos() {
-		return leitos;
+	public int getLeitosTotais() {
+		return leitosTotais;
 	}
 
-	public void setLeitos(int leitos) {
-		this.leitos = leitos;
+	public void setLeitosTotais(int leitosTotais) {
+		this.leitosTotais = leitosTotais;
 	}
 
 	public int getLeitosDisponiveis() {
@@ -90,5 +99,21 @@ public class Hospital extends ResourceSupport implements Serializable {
 	public void setLocalizacao(GeoJsonPoint localizacao) {
 		this.localizacao = localizacao;
 	}
-	
+
+	public Collection<Paciente> getPacientes() {
+		return pacientes;
+	}
+
+	public void setPacientes(Collection<Paciente> pacientes) {
+		this.pacientes = pacientes;
+	}
+
+	public Collection<Produto> getEstoque() {
+		return estoque;
+	}
+
+	public void setEstoque(Collection<Produto> estoque) {
+		this.estoque = estoque;
+	}
+
 }

@@ -10,6 +10,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.web.client.RestTemplate;
 
+import com.acelera.squad.four.hospital.cascade.CascadeSaveMongoEventListener;
 import com.acelera.squad.four.hospital.models.Hospital;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
@@ -24,7 +25,7 @@ import feign.Logger;
 @EnableMongoRepositories({ "com.acelera.squad.four.hospital.repositories" })
 public class ApplicationConfig {
 
-	public static final String HOSPITALS = "hospitals";
+	public static final String HOSPITAIS = "hospitais";
 
 	@Bean
 	public RestTemplate restTemplate(RestTemplateBuilder builder) {
@@ -40,7 +41,7 @@ public class ApplicationConfig {
 	public MongoClient mongo() {
 		MongoClient mongoClient = new MongoClient("localhost");
 		MongoDatabase mongoDatabase = mongoClient.getDatabase("test");
-		MongoCollection<Hospital> hospitals = mongoDatabase.getCollection(HOSPITALS, Hospital.class);
+		MongoCollection<Hospital> hospitals = mongoDatabase.getCollection(HOSPITAIS, Hospital.class);
 		hospitals.createIndex(Indexes.geo2dsphere("localizacao"));
 		return mongoClient;
 	}
@@ -48,6 +49,11 @@ public class ApplicationConfig {
 	@Bean
 	public MongoTemplate mongoTemplate() throws Exception {
 		return new MongoTemplate(mongo(), "test");
+	}
+
+	@Bean
+	public CascadeSaveMongoEventListener cascadingMongoEventListener() {
+		return new CascadeSaveMongoEventListener();
 	}
 
 }

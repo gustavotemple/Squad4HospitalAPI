@@ -1,35 +1,52 @@
 package com.acelera.squad.four.hospital.models;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
-@Document(collection = "produto")
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
+@TypeAlias("Produto")
+@Document(collection = "estoque")
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Produto {
 
+	public enum Type {
+		COMUM, SANGUE
+	}
+
 	@Id
+	@JsonProperty(access = Access.READ_ONLY)
 	private String id;
 	//@Field("nome")
-	private String nome;
+	private String nome = "";
 	//@Field("descricao")
-	private String descricao;
+	private String descricao = "";
 	//@Field("quantidade")
 	private int quantidade;
+	//@Field("tipo")
+	private Produto.Type tipo;
 
 	public Produto() {
 	}
 
-	public Produto(String id, String nome, String descricao, int quantidade) {
+	public Produto(String id, String nome, String descricao, int quantidade, Produto.Type tipo) {
 		this.id = id;
 		this.nome = nome;
 		this.descricao = descricao;
 		this.quantidade = quantidade;
+		this.tipo = tipo;
 	}
 
+	@JsonProperty
 	public String getId() {
 		return id;
 	}
 
+	@JsonIgnore
 	public void setId(String id) {
 		this.id = id;
 	}
@@ -58,11 +75,20 @@ public class Produto {
 		this.quantidade = quantidade;
 	}
 
+	public Produto.Type getTipo() {
+		return tipo;
+	}
+
+	public void setTipo(Produto.Type tipo) {
+		this.tipo = tipo;
+	}
+
 	public Produto build(Produto prod) {
 		this.id = prod.getId();
 		this.nome = prod.getNome();
 		this.descricao = prod.getDescricao();
 		this.quantidade = prod.getQuantidade();
+		this.tipo = prod.getTipo();
 		return this;
 	}
 }
