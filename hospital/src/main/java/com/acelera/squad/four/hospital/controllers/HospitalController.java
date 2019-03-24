@@ -4,6 +4,9 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import java.util.List;
+import java.util.Objects;
+
+import javax.validation.Valid;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.acelera.squad.four.hospital.configuration.ApplicationConfig;
+import com.acelera.squad.four.hospital.exceptions.HospitalNotFoundException;
 import com.acelera.squad.four.hospital.models.Hospital;
 import com.acelera.squad.four.hospital.models.HospitalDTO;
 import com.acelera.squad.four.hospital.repositories.HospitalRepository;
@@ -46,7 +50,7 @@ public class HospitalController {
 
 	@PostMapping("/hospitais")
 	@ApiOperation(value = "Adiciona um hospital")
-	public ResponseEntity<Hospital> addHospital(@RequestBody Hospital hospital) {
+	public ResponseEntity<Hospital> addHospital(@Valid @RequestBody Hospital hospital) {
 		hospital.setLocalizacao(hospitalService.buscaCoordenadasPor(hospital.getEndereco()));
 		hospital.set_id(ObjectId.get());
 
@@ -80,6 +84,9 @@ public class HospitalController {
 	public ResponseEntity<Hospital> getHospitalById(@PathVariable ObjectId id) {
 		Hospital hospital = hospitalRepository.findBy_id(id);
 
+		if (Objects.isNull(hospital))
+			throw new HospitalNotFoundException(id);
+
 		hospital.add(linkTo(methodOn(HospitalController.class).getHospitalById(hospital.getObjectId())).withSelfRel());
 
 		return ResponseEntity.ok().body(hospital);
@@ -90,6 +97,9 @@ public class HospitalController {
 	public ResponseEntity<HospitalDTO> getLeitosById(@PathVariable ObjectId id) {
 		Hospital hospital = hospitalRepository.findBy_id(id);
 
+		if (Objects.isNull(hospital))
+			throw new HospitalNotFoundException(id);
+
 		HospitalDTO hospitalDTO = new HospitalDTO(hospital);
 
 		return ResponseEntity.ok().body(hospitalDTO);
@@ -98,6 +108,9 @@ public class HospitalController {
 	@DeleteMapping("/hospitais/{id}")
 	@ApiOperation(value = "Apaga um hospital")
 	public ResponseEntity<String> deleteHospital(@PathVariable String id) {
+		if (!hospitalRepository.exists(id))
+			throw new HospitalNotFoundException(id);
+
 		hospitalRepository.delete(id);
 		return ResponseEntity.ok().body("Hospital " + id + " apagado.");
 	}

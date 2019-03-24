@@ -3,7 +3,11 @@ package com.acelera.squad.four.hospital.models;
 import java.io.Serializable;
 import java.util.Collection;
 
+import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotNull;
+
 import org.bson.types.ObjectId;
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
@@ -29,10 +33,14 @@ public class Hospital extends ResourceSupport implements Serializable {
 	@JsonProperty(access = Access.READ_ONLY)
 	private ObjectId _id;
 	@Indexed(name="nomeHospital", unique=true)
-	private String nome = "";
-	private String endereco = "";
-	private int leitosTotais;
-	private int leitosDisponiveis;
+	@NotEmpty(message = "Nome do hospital nao preenchido")
+	private String nome;
+	@NotEmpty(message = "Endereco do hospital nao preenchido")	
+	private String endereco;
+	@NotNull(message = "Leitos totais do hospital nao preenchido")
+	@DecimalMin(value = "1")
+	private Integer leitosTotais;
+	private Integer leitosDisponiveis;
 	@JsonProperty(access = Access.READ_ONLY)
 	private GeoJsonPoint localizacao;
 	@DBRef

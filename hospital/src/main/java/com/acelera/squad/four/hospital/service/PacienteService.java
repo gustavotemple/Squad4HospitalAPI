@@ -7,6 +7,7 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.acelera.squad.four.hospital.exceptions.HospitalNotFoundException;
 import com.acelera.squad.four.hospital.models.Hospital;
 import com.acelera.squad.four.hospital.models.Paciente;
 import com.acelera.squad.four.hospital.repositories.HospitalRepository;
@@ -21,6 +22,9 @@ public class PacienteService {
 
 	public Paciente addPaciente(ObjectId hospitalId, Paciente novoPaciente) {
 		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
+
+		if (Objects.isNull(hospital))
+			throw new HospitalNotFoundException(hospitalId);
 
 		Paciente paciente = new Paciente();
 		paciente.setNome(novoPaciente.getNome());
@@ -41,6 +45,9 @@ public class PacienteService {
 	public Paciente getPaciente(ObjectId hospitalId, String pacienteId) {
 		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
 
+		if (Objects.isNull(hospital))
+			throw new HospitalNotFoundException(hospitalId);
+
 		Paciente paciente = hospital.getPacientes().stream().filter(p -> pacienteId.equals(p.getId())).findFirst().orElse(null);
 		if (Objects.isNull(paciente)) {
 			/* handle this exception using {@link RestExceptionHandler} */
@@ -51,6 +58,9 @@ public class PacienteService {
 
 	public Paciente updatePaciente(ObjectId hospitalId, Paciente pacienteUpdate, String pacienteId) {
 		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
+
+		if (Objects.isNull(hospital))
+			throw new HospitalNotFoundException(hospitalId);
 
 		Paciente paciente = hospital.getPacientes().stream().filter(p -> pacienteId.equals(p.getId())).findFirst().orElse(null);
 		if (Objects.isNull(paciente)) {
@@ -75,6 +85,9 @@ public class PacienteService {
 	public void deletePaciente(ObjectId hospitalId, String pacienteId) {
 		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
 
+		if (Objects.isNull(hospital))
+			throw new HospitalNotFoundException(hospitalId);
+
 		Paciente paciente = hospital.getPacientes().stream().filter(p -> pacienteId.equals(p.getId())).findFirst().orElse(null);
 
 		hospital.getPacientes().remove(paciente);
@@ -84,6 +97,9 @@ public class PacienteService {
 
 	public Collection<Paciente> findAll(ObjectId hospitalId) {
 		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
+
+		if (Objects.isNull(hospital))
+			throw new HospitalNotFoundException(hospitalId);
 
 		return hospital.getPacientes();
 	}

@@ -1,5 +1,6 @@
 package com.acelera.squad.four.hospital.models;
 
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -21,8 +22,8 @@ public class Produto {
 	@Id
 	@JsonProperty(access = Access.READ_ONLY)
 	private String id;
-	//@Field("nome")
-	private String nome = "";
+	@NotEmpty(message = "Nome do item de estoque nao preenchido")
+	private String nome;
 	//@Field("descricao")
 	private String descricao = "";
 	//@Field("quantidade")

@@ -1,6 +1,5 @@
 package com.acelera.squad.four.hospital.service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -49,7 +48,7 @@ public class HospitalService {
 		else if (!Objects.isNull(lat) && !Objects.isNull(lng))
 			point = new Point(lng, lat);
 		else
-			return Collections.emptyList();
+			throw new IllegalArgumentException("Pametro nao preenchido");
 
 		List<Hospital> hospitals = hospitalRepository.findByLocalizacaoNear(point, DISTANCE);
 

@@ -2,6 +2,7 @@ package com.acelera.squad.four.hospital.models;
 
 import java.util.Date;
 
+import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -24,11 +25,13 @@ public class Paciente {
 	@Id
 	@JsonProperty(access = Access.READ_ONLY)
 	private String id;
-	private String nome = "";
+	@NotEmpty(message = "Nome do paciente nao preenchido")
+	private String nome;
 	private Date checkin;
 	private Date checkout;
 	@Indexed(name="cpfPaciente", unique=true)
-	private String cpf = "";
+	@NotEmpty(message = "CPF do paciente nao preenchido")	
+	private String cpf;
 	private Paciente.Type sexo;
 
 	public Paciente() {

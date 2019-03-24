@@ -2,6 +2,7 @@ package com.acelera.squad.four.hospital.service;
 
 import org.springframework.stereotype.Service;
 
+import com.acelera.squad.four.hospital.exceptions.HospitalNotFoundException;
 import com.acelera.squad.four.hospital.models.Hospital;
 import com.acelera.squad.four.hospital.models.Produto;
 import com.acelera.squad.four.hospital.repositories.HospitalRepository;
@@ -24,6 +25,9 @@ public class ProdutoService {
 	public Produto addProduto(ObjectId hospitalId, Produto produto) {
 		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
 
+		if (Objects.isNull(hospital))
+			throw new HospitalNotFoundException(hospitalId);
+
 		Produto prod = new Produto();
 		prod.setNome(produto.getNome());
 		prod.setDescricao(produto.getDescricao());
@@ -42,6 +46,9 @@ public class ProdutoService {
 	public Produto getProduto(ObjectId hospitalId, String produtoId) {		
 		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
 
+		if (Objects.isNull(hospital))
+			throw new HospitalNotFoundException(hospitalId);
+
 		Produto produto = hospital.getEstoque().stream().filter(p -> produtoId.equals(p.getId())).findFirst().orElse(null);
 
 		if (Objects.isNull(produto)) {
@@ -53,6 +60,9 @@ public class ProdutoService {
 
 	public Produto updateProduto(ObjectId hospitalId, Produto produtoUpdate, String produtoId) {
 		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
+
+		if (Objects.isNull(hospital))
+			throw new HospitalNotFoundException(hospitalId);
 
 		Produto prod = hospital.getEstoque().stream().filter(p -> produtoId.equals(p.getId())).findFirst().orElse(null);
 
@@ -77,6 +87,9 @@ public class ProdutoService {
 	public void deleteProduto(ObjectId hospitalId, String produtoId) {
 		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
 
+		if (Objects.isNull(hospital))
+			throw new HospitalNotFoundException(hospitalId);
+
 		Produto produto = hospital.getEstoque().stream().filter(p -> produtoId.equals(p.getId())).findFirst().orElse(null);
 
 		hospital.getEstoque().remove(produto);
@@ -86,6 +99,10 @@ public class ProdutoService {
 
 	public Collection<Produto> findAll(ObjectId hospitalId) {
 		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
+
+		if (Objects.isNull(hospital))
+			throw new HospitalNotFoundException(hospitalId);
+
 		return hospital.getEstoque();
 	}
 
