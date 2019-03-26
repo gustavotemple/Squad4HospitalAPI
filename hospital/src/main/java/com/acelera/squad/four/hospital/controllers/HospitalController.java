@@ -3,6 +3,7 @@ package com.acelera.squad.four.hospital.controllers;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -54,14 +55,18 @@ public class HospitalController {
 		hospital.setLocalizacao(hospitalService.buscaCoordenadasPor(hospital.getEndereco()));
 		hospital.set_id(ObjectId.get());
 
-		hospital.getEstoque().forEach(p -> {
-			p.setId(ObjectId.get().toHexString());
-			produtoRepository.save(p);
-		});
-		hospital.getPacientes().forEach(p -> {
-			p.setId(ObjectId.get().toHexString());
-			pacienteRepository.save(p);
-		});
+		if (hospital.getEstoque() != null) {
+			hospital.getEstoque().forEach(p -> {
+				p.setId(ObjectId.get().toHexString());
+				produtoRepository.save(p);
+			});
+		}
+		if (hospital.getPacientes() != null) {
+			hospital.getPacientes().forEach(p -> {
+				p.setId(ObjectId.get().toHexString());
+				pacienteRepository.save(p);
+			});
+		}
 
 		hospitalRepository.save(hospital);
 
@@ -113,6 +118,12 @@ public class HospitalController {
 
 		hospitalRepository.delete(id);
 		return ResponseEntity.ok().body("Hospital " + id + " apagado.");
+	}
+	
+	
+	@GetMapping("/hospitais/todos")
+	public ResponseEntity<Collection<Hospital>> listarProdutos() {
+		return ResponseEntity.ok().body(hospitalRepository.findAll());
 	}
 
 }

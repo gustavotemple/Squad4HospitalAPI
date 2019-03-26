@@ -20,7 +20,7 @@ import com.acelera.squad.four.hospital.repositories.HospitalRepository;
 @EnableFeignClients
 public class HospitalService {
 
-	private static final String KEY = "AIzaSyBa6MxMRKgE8wSfWutmzp3hNajttONXMuo";
+	private static final String KEY = "AIzaSyAczcT1dO-iPGi273Mu3fr9uxJoUgArfyI";
 
 	private static Distance DISTANCE = new Distance(1, Metrics.KILOMETERS);
 
