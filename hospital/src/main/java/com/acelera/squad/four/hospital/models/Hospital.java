@@ -1,6 +1,7 @@
 package com.acelera.squad.four.hospital.models;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.validation.constraints.DecimalMin;
@@ -44,9 +45,9 @@ public class Hospital extends ResourceSupport implements Serializable {
 	@JsonProperty(access = Access.READ_ONLY)
 	private GeoJsonPoint localizacao;
 	@DBRef
-	private Collection<Paciente> pacientes;
+	private Collection<Paciente> pacientes = new ArrayList<Paciente>();
 	@DBRef
-	private Collection<Produto> estoque;
+	private Collection<Produto> estoque = new ArrayList<Produto>();
 	
 	public Hospital() {
 	}

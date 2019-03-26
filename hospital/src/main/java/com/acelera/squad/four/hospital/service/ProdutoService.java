@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class ProdutoService {
 
 	@Autowired
-	private ProdutoRepository userMongoDbRepository;
+	private ProdutoRepository produtoRepository;
 	@Autowired
 	private HospitalRepository hospitalRepository;
 
@@ -34,7 +34,7 @@ public class ProdutoService {
 		prod.setQuantidade(produto.getQuantidade());
 		prod.setTipo(produto.getTipo());
 
-		userMongoDbRepository.save(prod);
+		produtoRepository.save(prod);
 
 		hospital.getEstoque().add(prod);
 
@@ -70,13 +70,14 @@ public class ProdutoService {
 			/* handle this exception using {@link RestExceptionHandler} */
 			throw new NullPointerException();
 		}
-
+		hospital.getEstoque().remove(prod);
+		
 		prod.setNome(produtoUpdate.getNome());
 		prod.setDescricao(produtoUpdate.getDescricao());
 		prod.setQuantidade(produtoUpdate.getQuantidade());
 		prod.setTipo(produtoUpdate.getTipo());
 
-		userMongoDbRepository.save(prod);
+		produtoRepository.save(prod);
 
 		hospital.getEstoque().add(prod);
 
@@ -89,6 +90,12 @@ public class ProdutoService {
 
 		if (Objects.isNull(hospital))
 			throw new HospitalNotFoundException(hospitalId);
+		Produto prod = hospital.getEstoque().stream().filter(p -> produtoId.equals(p.getId())).findFirst().orElse(null);
+
+		if (Objects.isNull(prod)) {
+			/* handle this exception using {@link RestExceptionHandler} */
+			throw new NullPointerException();
+		}
 
 		Produto produto = hospital.getEstoque().stream().filter(p -> produtoId.equals(p.getId())).findFirst().orElse(null);
 
