@@ -4,7 +4,6 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 
 import javax.validation.Valid;
@@ -77,7 +76,7 @@ public class HospitalController {
 
 	@GetMapping("/hospitais")
 	@ApiOperation(value = "Retorna os hospitais proximos com leitos disponiveis")
-	public ResponseEntity<List<Hospital>> getHospitalsByLocation(
+	public ResponseEntity<Hospital> getHospitalsByLocation(
 			@RequestParam(value = "endereco", required = false) String endereco,
 			@RequestParam(value = "latitude", required = false) Float lat,
 			@RequestParam(value = "longitude", required = false) Float lng) {
