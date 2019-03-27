@@ -67,6 +67,7 @@ public class PacienteService {
 			/* handle this exception using {@link RestExceptionHandler} */
 			throw new NullPointerException();
 		}
+		hospital.getPacientes().remove(paciente);
 
 		paciente.setNome(pacienteUpdate.getNome());
 		paciente.setCheckin(pacienteUpdate.getCheckin());
@@ -89,7 +90,10 @@ public class PacienteService {
 			throw new HospitalNotFoundException(hospitalId);
 
 		Paciente paciente = hospital.getPacientes().stream().filter(p -> pacienteId.equals(p.getId())).findFirst().orElse(null);
-
+		if (Objects.isNull(paciente)) {
+			/* handle this exception using {@link RestExceptionHandler} */
+			throw new NullPointerException();
+		}
 		hospital.getPacientes().remove(paciente);
 
 		hospitalRepository.save(hospital);
