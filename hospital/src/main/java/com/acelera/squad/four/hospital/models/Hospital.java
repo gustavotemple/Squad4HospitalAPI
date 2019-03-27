@@ -49,6 +49,12 @@ public class Hospital extends ResourceSupport implements Serializable {
 	@DBRef
 	private Collection<Produto> estoque = new ArrayList<Produto>();
 	
+	public Hospital(ObjectId id, String nome, String endereco){
+		this._id = id;
+		this.nome = nome;
+		this.endereco = endereco;
+	}
+
 	public Hospital() {
 	}
 
