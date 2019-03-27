@@ -37,7 +37,7 @@ public class HospitalControllerTest extends HospitalApplicationTests{
 
 	@Before
 	public void setup() {
-        hospital = new Hospital( new ObjectId(), "Santa Luzia", "Rua do Java");            
+        hospital = new Hospital( new ObjectId(), "Santa Luzia", "Rua do Java", 10, 10);            
         mockMvc = MockMvcBuilders.standaloneSetup(hospitalController).build();  
         
 	}
@@ -58,7 +58,7 @@ public class HospitalControllerTest extends HospitalApplicationTests{
 
     @Test
     public void deveBuscarHospial() throws Exception {
-        String url = "/v1/hospital/" + hospital.getObjectId() ;
+        String url = "/v1/hospitais/" + hospital.getObjectId() ;
         Mockito.when(this.hospialRepository.findBy_id( hospital.getObjectId() )).thenReturn(hospital);
        
         // when        
