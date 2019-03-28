@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.acelera.squad.four.hospital.configuration.ApplicationConfig;
@@ -51,6 +50,7 @@ public class HospitalController {
 	@PostMapping("/hospitais")
 	@ApiOperation(value = "Adiciona um hospital")
 	public ResponseEntity<Hospital> addHospital(@Valid @RequestBody Hospital hospital) {
+		
 		hospital.setLocalizacao(hospitalService.buscaCoordenadasPor(hospital.getEndereco()));
 		hospital.set_id(ObjectId.get());
 
@@ -74,12 +74,19 @@ public class HospitalController {
 		return ResponseEntity.ok().body(hospital);
 	}
 
-	@GetMapping("/hospitais")
+	@GetMapping("/hospitais/near/{id}")
 	@ApiOperation(value = "Retorna os hospitais proximos com leitos disponiveis")
-	public ResponseEntity<Hospital> getHospitalsByLocation(
-			@RequestParam(value = "endereco", required = false) String endereco,
-			@RequestParam(value = "latitude", required = false) Float lat,
-			@RequestParam(value = "longitude", required = false) Float lng) {
+	public ResponseEntity<Hospital> getHospitalsByLocation(@PathVariable ObjectId id) {
+		
+		Hospital hospital = hospitalRepository.findBy_id(id);
+
+		if (Objects.isNull(hospital))
+			throw new HospitalNotFoundException(id);
+		
+		String endereco;
+		Float lat = null, lng = null;
+		endereco = hospital.getEndereco();
+		
 		return ResponseEntity.ok().body(hospitalService.buscaHospitaisPor(endereco, lat, lng));
 	}
 

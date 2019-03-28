@@ -19,8 +19,6 @@ public class HospitalService {
 
 	private static final String KEY = "AIzaSyAczcT1dO-iPGi273Mu3fr9uxJoUgArfyI";
 
-	//private static Distance DISTANCE = new Distance(1, Metrics.KILOMETERS);
-
 	private static int MINIMUM = 0;
 
 	@Autowired
@@ -30,6 +28,10 @@ public class HospitalService {
 
 	public GeoJsonPoint buscaCoordenadasPor(final String endereco) {
 		final Geocode geocode = geocodeClient.buscaCoordenadasPor(endereco, KEY);
+		
+		if(geocode.getResults().isEmpty()) {
+			throw new IllegalArgumentException("Endereço nao existente");
+		}		
 
 		final GeoJsonPoint point = new GeoJsonPoint(geocode.getResults().get(0).getGeometry().getLocation().getLng(),
 				geocode.getResults().get(0).getGeometry().getLocation().getLat());
@@ -44,6 +46,21 @@ public class HospitalService {
 			point = buscaCoordenadasPor(endereco);
 		else if (!Objects.isNull(lat) && !Objects.isNull(lng))
 			point = new Point(lng, lat);
+		else
+			throw new IllegalArgumentException("Pametro nao preenchido");
+
+		List<Hospital> hospitals = hospitalRepository.findByLocalizacaoNear(point);
+
+		return hospitals.stream()
+				.filter(hospital -> hospital.getLeitosDisponiveis() > MINIMUM)				
+				.skip(1).findFirst().get();			
+	}
+	
+	public Hospital hospitalMaisProximoPaciente(final String endereco) {
+		Point point;
+
+		if (!Objects.isNull(endereco))
+			point = buscaCoordenadasPor(endereco);		
 		else
 			throw new IllegalArgumentException("Pametro nao preenchido");
 

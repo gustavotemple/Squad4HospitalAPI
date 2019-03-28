@@ -15,12 +15,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.acelera.squad.four.hospital.models.Hospital;
 import com.acelera.squad.four.hospital.models.Paciente;
+import com.acelera.squad.four.hospital.service.HospitalService;
 import com.acelera.squad.four.hospital.service.PacienteService;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 @Api(value = "pacientes")
@@ -30,10 +34,19 @@ public class PacienteController {
 	
 	@Autowired
 	private PacienteService pacienteService;
+	@Autowired
+	private HospitalService hospitalService;
 
 	@PostMapping("/hospitais/{id}/pacientes")
 	public ResponseEntity<Paciente> addPaciente(@PathVariable ObjectId id, @Valid @RequestBody Paciente novoPaciente) {
 		return ResponseEntity.ok(pacienteService.addPaciente(id, novoPaciente));
+	}
+	
+	@GetMapping("/hospitais/pacientes/near")
+	@ApiOperation(value = "Retorna os hospitais proximos com leitos disponiveis")
+	public ResponseEntity<Hospital> getHospitalsByLocation(
+			@RequestParam(value = "endereco", required = false) String endereco) {
+		return ResponseEntity.ok().body(hospitalService.hospitalMaisProximoPaciente(endereco));
 	}
 
 	@GetMapping("/hospitais/{id}/pacientes/{paciente}")
