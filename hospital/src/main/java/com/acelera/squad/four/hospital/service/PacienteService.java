@@ -1,6 +1,7 @@
 package com.acelera.squad.four.hospital.service;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Objects;
 
 import org.bson.types.ObjectId;
@@ -9,8 +10,10 @@ import org.springframework.stereotype.Service;
 
 import com.acelera.squad.four.hospital.exceptions.HospitalNotFoundException;
 import com.acelera.squad.four.hospital.models.Hospital;
+import com.acelera.squad.four.hospital.models.Leito;
 import com.acelera.squad.four.hospital.models.Paciente;
 import com.acelera.squad.four.hospital.repositories.HospitalRepository;
+import com.acelera.squad.four.hospital.repositories.LeitoRepository;
 import com.acelera.squad.four.hospital.repositories.PacienteRepository;
 
 @Service
@@ -19,6 +22,8 @@ public class PacienteService {
 	private PacienteRepository pacienteRepository;
 	@Autowired
 	private HospitalRepository hospitalRepository;
+	@Autowired
+	private LeitoRepository leitoreRepository;
 
 	public Paciente addPaciente(ObjectId hospitalId, Paciente novoPaciente) {
 		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
@@ -28,8 +33,7 @@ public class PacienteService {
 
 		Paciente paciente = new Paciente();
 		paciente.setNome(novoPaciente.getNome());
-		paciente.setCheckin(novoPaciente.getCheckin());
-		paciente.setCheckout(novoPaciente.getCheckout());
+
 		paciente.setCpf(novoPaciente.getCpf());
 		paciente.setSexo(novoPaciente.getSexo());
 		
@@ -70,8 +74,7 @@ public class PacienteService {
 		hospital.getPacientes().remove(paciente);
 
 		paciente.setNome(pacienteUpdate.getNome());
-		paciente.setCheckin(pacienteUpdate.getCheckin());
-		paciente.setCheckout(pacienteUpdate.getCheckout());
+
 		paciente.setCpf(pacienteUpdate.getCpf());
 		paciente.setSexo(pacienteUpdate.getSexo());
 
@@ -108,4 +111,21 @@ public class PacienteService {
 		return hospital.getPacientes();
 	}
 
+
+
+	public void checkin(ObjectId hospitalId, String pacienteId) {
+		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
+
+		if (Objects.isNull(hospital))
+			throw new HospitalNotFoundException(hospitalId);
+
+
+		Date checkin = new Date();
+		Leito leito = new Leito(pacienteId, checkin);
+		hospital.addLeito(leito);
+		
+		leitoreRepository.save(leito);
+		hospitalRepository.save(hospital);
+
+	}
 }
