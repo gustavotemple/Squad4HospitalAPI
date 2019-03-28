@@ -41,21 +41,20 @@ public class Hospital extends ResourceSupport implements Serializable {
 	@NotNull(message = "Leitos totais do hospital nao preenchido")
 	@DecimalMin(value = "1")
 	private Integer leitosTotais;
-	@NotNull(message = "Leitos disponiveis do hospital nao preenchido")
-	private Integer leitosDisponiveis;
 	@JsonProperty(access = Access.READ_ONLY)
 	private GeoJsonPoint localizacao;
 	@DBRef
 	private Collection<Paciente> pacientes = new ArrayList<Paciente>();
 	@DBRef
 	private Collection<Produto> estoque = new ArrayList<Produto>();
+	@DBRef
+	private Collection<Leito> leitos = new ArrayList<Leito>();
 	
-	public Hospital(ObjectId id, String nome, String endereco, Integer leitosTotais, Integer leitosDisponiveis){
+	public Hospital(ObjectId id, String nome, String endereco, Integer leitosTotais){
 		this._id = id;
 		this.nome = nome;
 		this.endereco = endereco;
 		this.leitosTotais = leitosTotais;
-		this.leitosDisponiveis = leitosDisponiveis;
 	}
 
 	public Hospital() {
@@ -91,7 +90,6 @@ public class Hospital extends ResourceSupport implements Serializable {
 	public void setEndereco(String endereco) {
 		this.endereco = endereco;
 	}
-
 	public int getLeitosTotais() {
 		return leitosTotais;
 	}
@@ -99,13 +97,8 @@ public class Hospital extends ResourceSupport implements Serializable {
 	public void setLeitosTotais(int leitosTotais) {
 		this.leitosTotais = leitosTotais;
 	}
-
 	public int getLeitosDisponiveis() {
-		return leitosDisponiveis;
-	}
-
-	public void setLeitosDisponiveis(int leitosDisponiveis) {
-		this.leitosDisponiveis = leitosDisponiveis;
+		return leitosTotais - leitos.size();
 	}
 
 	@JsonProperty
@@ -132,6 +125,14 @@ public class Hospital extends ResourceSupport implements Serializable {
 
 	public void setEstoque(Collection<Produto> estoque) {
 		this.estoque = estoque;
+	}
+
+	public Collection<Leito> getLeitos() {
+		return leitos;
+	}
+
+	public void setLeitos(Collection<Leito> leitos) {
+		this.leitos = leitos;
 	}
 
 }

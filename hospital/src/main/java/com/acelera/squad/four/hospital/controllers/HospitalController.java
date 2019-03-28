@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.acelera.squad.four.hospital.configuration.ApplicationConfig;
 import com.acelera.squad.four.hospital.exceptions.HospitalNotFoundException;
 import com.acelera.squad.four.hospital.models.Hospital;
-import com.acelera.squad.four.hospital.models.HospitalDTO;
+import com.acelera.squad.four.hospital.models.Leito;
 import com.acelera.squad.four.hospital.repositories.HospitalRepository;
 import com.acelera.squad.four.hospital.repositories.PacienteRepository;
 import com.acelera.squad.four.hospital.repositories.ProdutoRepository;
@@ -105,15 +105,15 @@ public class HospitalController {
 
 	@GetMapping("/hospitais/{id}/leitos")
 	@ApiOperation(value = "Retorna os leitos de um hospital")
-	public ResponseEntity<HospitalDTO> getLeitosById(@PathVariable ObjectId id) {
+	public ResponseEntity<Collection<Leito>> getLeitosById(@PathVariable ObjectId id) {
 		Hospital hospital = hospitalRepository.findBy_id(id);
+		Collection<Leito> leitos = hospital.getLeitos();
 
 		if (Objects.isNull(hospital))
 			throw new HospitalNotFoundException(id);
 
-		HospitalDTO hospitalDTO = new HospitalDTO(hospital);
-
-		return ResponseEntity.ok().body(hospitalDTO);
+		
+		return ResponseEntity.ok().body(leitos);
 	}
 
 	@DeleteMapping("/hospitais/{id}")

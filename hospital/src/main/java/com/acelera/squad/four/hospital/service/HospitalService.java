@@ -54,9 +54,9 @@ public class HospitalService {
 		List<Hospital> hospitals = hospitalRepository.findByLocalizacaoNear(point);
 			
 		return hospitals.stream()
-				.filter(leitosEProdutosDisponiveis())	
-				.skip(1).findFirst().get();			
-	}
+				.filter(hospital -> hospital.getLeitos().size() > MINIMUM)
+				.skip(1).findFirst().get();
+
 	
 	public Hospital hospitalMaisProximoPaciente(final String endereco) {
 		Point point;
@@ -76,6 +76,7 @@ public class HospitalService {
 		return hospital -> hospital.getLeitosDisponiveis() > MIN_LEITOS_DISPONIVEIS && 
 				hospital.getEstoque().stream().allMatch(prod -> prod.getQuantidade() > QTD_MIN_PRODUTOS) &&
 				!hospital.getEstoque().isEmpty();
+
 	}
 
 }
