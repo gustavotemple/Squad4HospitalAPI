@@ -2,6 +2,7 @@ package com.acelera.squad.four.hospital.service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
@@ -19,7 +20,8 @@ public class HospitalService {
 
 	private static final String KEY = "AIzaSyAczcT1dO-iPGi273Mu3fr9uxJoUgArfyI";
 
-	private static int MINIMUM = 0;
+	private static int MIN_LEITOS_DISPONIVEIS = 0;
+	private int QTD_MIN_PRODUTOS = 4;
 
 	@Autowired
 	private GeocodeClient geocodeClient;
@@ -50,9 +52,9 @@ public class HospitalService {
 			throw new IllegalArgumentException("Pametro nao preenchido");
 
 		List<Hospital> hospitals = hospitalRepository.findByLocalizacaoNear(point);
-
+			
 		return hospitals.stream()
-				.filter(hospital -> hospital.getLeitosDisponiveis() > MINIMUM)				
+				.filter(leitosEProdutosDisponiveis())	
 				.skip(1).findFirst().get();			
 	}
 	
@@ -66,7 +68,14 @@ public class HospitalService {
 
 		List<Hospital> hospitals = hospitalRepository.findByLocalizacaoNear(point);
 
-		return hospitals.stream().filter(hospital -> hospital.getLeitosDisponiveis() > MINIMUM).findFirst().get();			
+		return hospitals.stream().filter(leitosEProdutosDisponiveis())
+				.findFirst().get();			
+	}
+	
+	private Predicate<Hospital> leitosEProdutosDisponiveis(){
+		return hospital -> hospital.getLeitosDisponiveis() > MIN_LEITOS_DISPONIVEIS && 
+				hospital.getEstoque().stream().allMatch(prod -> prod.getQuantidade() > QTD_MIN_PRODUTOS) &&
+				!hospital.getEstoque().isEmpty();
 	}
 
 }

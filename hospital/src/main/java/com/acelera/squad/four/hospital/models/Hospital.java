@@ -41,6 +41,7 @@ public class Hospital extends ResourceSupport implements Serializable {
 	@NotNull(message = "Leitos totais do hospital nao preenchido")
 	@DecimalMin(value = "1")
 	private Integer leitosTotais;
+	@NotNull(message = "Leitos disponiveis do hospital nao preenchido")
 	private Integer leitosDisponiveis;
 	@JsonProperty(access = Access.READ_ONLY)
 	private GeoJsonPoint localizacao;
