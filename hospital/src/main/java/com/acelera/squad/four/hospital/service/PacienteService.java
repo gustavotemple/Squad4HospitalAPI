@@ -111,8 +111,6 @@ public class PacienteService {
 		return hospital.getPacientes();
 	}
 
-
-
 	public void checkin(ObjectId hospitalId, String pacienteId) {
 		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
 
@@ -121,11 +119,32 @@ public class PacienteService {
 
 
 		Date checkin = new Date();
-		Leito leito = new Leito(pacienteId, checkin);
+		Leito leito = new Leito(pacienteId, checkin, null);
 		hospital.addLeito(leito);
 		
 		leitoreRepository.save(leito);
 		hospitalRepository.save(hospital);
 
 	}
+
+	public void checkout(ObjectId hospitalId, String pacienteId) {
+		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
+
+		if (Objects.isNull(hospital))
+			throw new HospitalNotFoundException(hospitalId);
+
+		Date checkout = new Date();
+
+		
+		//Leito leito = hospital.getLeitos().stream().filter(o -> o.getPacienteId() == pacienteId).findFirst().get();
+		Leito leito = hospital.getLeitos().stream().findFirst().get();
+		//Leito leito = hospital.getLeito(pacienteId);
+		leito.setCheckout(checkout);
+		
+		hospital.removeLeito(leito);		
+		leitoreRepository.save(leito);
+		hospitalRepository.save(hospital);
+
+	}
+
 }

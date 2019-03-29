@@ -3,9 +3,13 @@ package com.acelera.squad.four.hospital;
 import com.acelera.squad.four.hospital.controllers.PacienteController;
 import com.acelera.squad.four.hospital.models.Paciente;
 import com.acelera.squad.four.hospital.repositories.PacienteRepository;
+import com.acelera.squad.four.hospital.service.PacienteService;
+
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import com.acelera.squad.four.hospital.controllers.HospitalController;
 import com.acelera.squad.four.hospital.models.Hospital;
@@ -33,7 +37,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 public class PacienteControllerTest extends HospitalApplicationTests{
 
 	@InjectMocks
-	private PacienteController pacienteController;    
+    private PacienteController pacienteController;    
+    
+    @InjectMocks
+    private PacienteService pacienteService;
 
     @Mock
     private PacienteRepository pacienteRepository;
@@ -52,7 +59,12 @@ public class PacienteControllerTest extends HospitalApplicationTests{
  
     @Test
     public void deveFazerCheckin() throws Exception{
-        String url = "/v1/hospitais/" + hospital.getId() + "pacientes/" + paciente.getId() + "/checkin" ;
+        
+        //when(pacienteController.postCheckout(hospital.getObjectId(), paciente.getId())).willReturn(ResponseEntity<"">);
+
+        pacienteController.postCheckout(hospital.getObjectId(), paciente.getId());
+
+        String url = "/v1/hospitais/" + hospital.get_id() + "/pacientes/" + paciente.getId() + "/checkin" ;
 
         MockHttpServletResponse response = mockMvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -60,6 +72,21 @@ public class PacienteControllerTest extends HospitalApplicationTests{
 
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());       
         assertThat(response.getContentAsString()).isEqualTo("Checkin feito com sucesso");         
+    }
+
+    @Test
+    public void deveFazerCHeckout() throws Exception{
+
+        pacienteService.checkout(hospital.getObjectId(),  paciente.getId());
+
+        String url = "/v1/hospitais/" + this.hospital.get_id() + "/pacientes/" + paciente.getId() + "/checkout" ;
+
+        MockHttpServletResponse response = mockMvc.perform(post(url)
+                        .contentType(MediaType.APPLICATION_JSON))
+                        .andReturn().getResponse();
+
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());       
+        assertThat(response.getContentAsString()).isEqualTo("Checkout feito com sucesso");            
     }
 
 }

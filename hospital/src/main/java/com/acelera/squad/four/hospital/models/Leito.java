@@ -21,24 +21,27 @@ public class Leito{
 	private String id;
     private String pacienteID;
     private Date checkin;
-	//private Date checkout;
+	private Date checkout;
 
     public Leito(){}
 
-    public Leito(String pacienteID, Date checkin){
+    public Leito(String pacienteID, Date checkin, Date checkout){
         super();                
         this.pacienteID = pacienteID;
         this.checkin = checkin;
+        this.checkout = checkout;
     }
 
     @JsonProperty
     public String getId(){ return this.id;}
     @JsonProperty
     public String getPacienteId(){return this.pacienteID;}
-    
+
+    public Date getCheckout(){return this.checkout;}    
     public Date getChekIn(){return this.checkin;}
 
     public void setId(String id){this.id = id;}
     public void setPacienteId(String pacienteId){this.pacienteID = pacienteId;}
     public void setCheckin(Date checkin){this.checkin = checkin;}
+    public void setCheckout(Date checkout){this.checkout = checkout;}
 }
