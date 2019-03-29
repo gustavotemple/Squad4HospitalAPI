@@ -135,4 +135,7 @@ public class Hospital extends ResourceSupport implements Serializable {
 		this.leitos = leitos;
 	}
 
+	public void addLeito(Leito leito){
+		this.leitos.add(leito);
+	}
 }

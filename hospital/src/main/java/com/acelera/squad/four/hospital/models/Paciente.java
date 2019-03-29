@@ -27,8 +27,6 @@ public class Paciente {
 	private String id;
 	@NotEmpty(message = "Nome do paciente nao preenchido")
 	private String nome;
-	private Date checkin;
-	private Date checkout;
 	@Indexed(name="cpfPaciente", unique=true)
 	@NotEmpty(message = "CPF do paciente nao preenchido")	
 	private String cpf;
@@ -37,12 +35,10 @@ public class Paciente {
 	public Paciente() {
 	}
 
-	public Paciente(String id, String nome, Date checkin, Date checkout, String cpf, Paciente.Type sexo) {
+	public Paciente(String id, String nome, String cpf, Paciente.Type sexo) {
 		super();
 		this.id = id;
 		this.nome = nome;
-		this.checkin = checkin;
-		this.checkout = checkout;
 		this.cpf = cpf;
 		this.sexo = sexo;
 	}
@@ -65,21 +61,7 @@ public class Paciente {
 		this.nome = nome;
 	}
 
-	public Date getCheckin() {
-		return checkin;
-	}
 
-	public void setCheckin(Date checkin) {
-		this.checkin = checkin;
-	}
-
-	public Date getCheckout() {
-		return checkout;
-	}
-
-	public void setCheckout(Date checkout) {
-		this.checkout = checkout;
-	}
 
 	public String getCpf() {
 		return cpf;
@@ -100,8 +82,7 @@ public class Paciente {
 	public Paciente build(Paciente novoPaciente) {
 		this.id = novoPaciente.getId();
 		this.nome = novoPaciente.getNome();
-		this.checkin = novoPaciente.getCheckin();
-		this.checkout = novoPaciente.getCheckout();
+
 		this.cpf = novoPaciente.getCpf();
 		this.sexo = novoPaciente.getSexo();
 		return this;
