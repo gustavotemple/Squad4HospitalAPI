@@ -1,4 +1,4 @@
-package com.acelera.squad.four.hospital;
+package com.acelera.squad.four.hospital.controllers;
 
 import com.acelera.squad.four.hospital.controllers.PacienteController;
 import com.acelera.squad.four.hospital.models.Paciente;
@@ -7,6 +7,7 @@ import org.springframework.http.MediaType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.acelera.squad.four.hospital.HospitalApplicationTests;
 import com.acelera.squad.four.hospital.controllers.HospitalController;
 import com.acelera.squad.four.hospital.models.Hospital;
 import com.acelera.squad.four.hospital.models.Paciente;

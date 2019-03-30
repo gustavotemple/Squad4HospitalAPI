@@ -1,4 +1,4 @@
-package com.acelera.squad.four.hospital;
+package com.acelera.squad.four.hospital.controllers;
 
 import javax.ws.rs.core.MediaType;
 
