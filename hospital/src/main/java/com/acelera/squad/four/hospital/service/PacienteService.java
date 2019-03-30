@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.acelera.squad.four.hospital.exceptions.HospitalNotFoundException;
+import com.acelera.squad.four.hospital.exceptions.PacienteNotFoundException;
 import com.acelera.squad.four.hospital.models.Hospital;
 import com.acelera.squad.four.hospital.models.Leito;
 import com.acelera.squad.four.hospital.models.Paciente;
@@ -26,99 +27,55 @@ public class PacienteService {
 	private LeitoRepository leitoreRepository;
 
 	public Paciente addPaciente(ObjectId hospitalId, Paciente novoPaciente) {
-		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
-
-		if (Objects.isNull(hospital))
-			throw new HospitalNotFoundException(hospitalId);
-
-		Paciente paciente = new Paciente();
+		final Paciente paciente = new Paciente();
 		paciente.setNome(novoPaciente.getNome());
-
 		paciente.setCpf(novoPaciente.getCpf());
 		paciente.setSexo(novoPaciente.getSexo());
-		
 		pacienteRepository.save(paciente);
 
+		final Hospital hospital = findHospitalBy(hospitalId);
 		hospital.getPacientes().add(paciente);
-
 		hospitalRepository.save(hospital);
 
 		return paciente;
 	}
 
 	public Paciente getPaciente(ObjectId hospitalId, String pacienteId) {
-		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
-
-		if (Objects.isNull(hospital))
-			throw new HospitalNotFoundException(hospitalId);
-
-		Paciente paciente = hospital.getPacientes().stream().filter(p -> pacienteId.equals(p.getId())).findFirst().orElse(null);
-		if (Objects.isNull(paciente)) {
-			/* handle this exception using {@link RestExceptionHandler} */
-			throw new NullPointerException();
-		}
+		final Paciente paciente = findPacienteBy(findHospitalBy(hospitalId), pacienteId);
+		
 		return new Paciente().build(paciente);
 	}
 
 	public Paciente updatePaciente(ObjectId hospitalId, Paciente pacienteUpdate, String pacienteId) {
-		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
-
-		if (Objects.isNull(hospital))
-			throw new HospitalNotFoundException(hospitalId);
-
-		Paciente paciente = hospital.getPacientes().stream().filter(p -> pacienteId.equals(p.getId())).findFirst().orElse(null);
-		if (Objects.isNull(paciente)) {
-			/* handle this exception using {@link RestExceptionHandler} */
-			throw new NullPointerException();
-		}
-		hospital.getPacientes().remove(paciente);
+		final Paciente paciente = findPacienteBy(findHospitalBy(hospitalId), pacienteId);
 
 		paciente.setNome(pacienteUpdate.getNome());
-
 		paciente.setCpf(pacienteUpdate.getCpf());
 		paciente.setSexo(pacienteUpdate.getSexo());
-
 		pacienteRepository.save(paciente);
 
-		hospital.getPacientes().add(paciente);
-
-		hospitalRepository.save(hospital);
 		return new Paciente().build(paciente);
 	}
 
 	public void deletePaciente(ObjectId hospitalId, String pacienteId) {
-		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
+		final Hospital hospital = findHospitalBy(hospitalId);
 
-		if (Objects.isNull(hospital))
-			throw new HospitalNotFoundException(hospitalId);
-
-		Paciente paciente = hospital.getPacientes().stream().filter(p -> pacienteId.equals(p.getId())).findFirst().orElse(null);
-		if (Objects.isNull(paciente)) {
-			/* handle this exception using {@link RestExceptionHandler} */
-			throw new NullPointerException();
-		}
+		final Paciente paciente = findPacienteBy(hospital, pacienteId);
+		
 		hospital.getPacientes().remove(paciente);
-
 		hospitalRepository.save(hospital);
+		
+		pacienteRepository.delete(pacienteId);
 	}
 
 	public Collection<Paciente> findAll(ObjectId hospitalId) {
-		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
-
-		if (Objects.isNull(hospital))
-			throw new HospitalNotFoundException(hospitalId);
+		final Hospital hospital = findHospitalBy(hospitalId);
 
 		return hospital.getPacientes();
 	}
 
-
-
 	public void checkin(ObjectId hospitalId, String pacienteId) {
-		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
-
-		if (Objects.isNull(hospital))
-			throw new HospitalNotFoundException(hospitalId);
-
+		final Hospital hospital = findHospitalBy(hospitalId);
 
 		Date checkin = new Date();
 		Leito leito = new Leito(pacienteId, checkin);
@@ -126,6 +83,21 @@ public class PacienteService {
 		
 		leitoreRepository.save(leito);
 		hospitalRepository.save(hospital);
-
 	}
+
+	private Paciente findPacienteBy(Hospital hospital, String pacienteId) {
+		final Paciente paciente = hospital.getPacientes().stream().filter(p -> pacienteId.equals(p.getId())).findFirst()
+				.orElse(null);
+		if (Objects.isNull(paciente))
+			throw new PacienteNotFoundException(pacienteId);
+		return paciente;
+	}
+
+	private Hospital findHospitalBy(ObjectId hospitalId) {
+		final Hospital hospital = hospitalRepository.findBy_id(hospitalId);
+		if (Objects.isNull(hospital))
+			throw new HospitalNotFoundException(hospitalId);
+		return hospital;
+	}
+
 }

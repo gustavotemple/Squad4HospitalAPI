@@ -21,10 +21,11 @@ import com.acelera.squad.four.hospital.models.Produto;
 import com.acelera.squad.four.hospital.service.ProdutoService;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 @Api(value = "estoque")
-@RequestMapping("/v1")
+@RequestMapping(path = "/v1")
 @ExposesResourceFor(Produto.class)
 public class ProdutoController {
 
@@ -32,16 +33,19 @@ public class ProdutoController {
 	private ProdutoService produtoService;
 
 	@PostMapping("/hospitais/{id}/estoque")
+	@ApiOperation(value = "Adiciona um produto no estoque de um hospital")
 	public ResponseEntity<Produto> addProduto(@PathVariable ObjectId id, @Valid @RequestBody Produto newProduto) {
 		return ResponseEntity.ok(produtoService.addProduto(id, newProduto));
 	}
 
 	@GetMapping("/hospitais/{id}/estoque/{produto}")
+	@ApiOperation(value = "Retorna mais detalhes de um produto")
 	public Produto getProduto(@PathVariable ObjectId id, @PathVariable String produto) {
 		return produtoService.getProduto(id, produto);
 	}
 
 	@GetMapping("/hospitais/{id}/estoque")
+	@ApiOperation(value = "Retorna as informacoes dos produtos existentes no estoque")
 	public ResponseEntity<Collection<Produto>> listarProdutos(@PathVariable ObjectId id) {
 		return ResponseEntity.ok().body(produtoService.findAll(id));
 	}

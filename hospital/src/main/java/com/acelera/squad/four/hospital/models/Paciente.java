@@ -1,7 +1,5 @@
 package com.acelera.squad.four.hospital.models;
 
-import java.util.Date;
-
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;

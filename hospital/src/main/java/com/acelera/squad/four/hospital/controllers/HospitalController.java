@@ -75,7 +75,7 @@ public class HospitalController {
 	}
 
 	@GetMapping("/hospitais/near/{id}")
-	@ApiOperation(value = "Retorna os hospitais proximos com leitos disponiveis")
+	@ApiOperation(value = "Retorna o hospital mais proximo com estoque disponivel")
 	public ResponseEntity<Hospital> getHospitalsByLocation(@PathVariable ObjectId id) {
 		
 		Hospital hospital = hospitalRepository.findBy_id(id);
@@ -83,11 +83,7 @@ public class HospitalController {
 		if (Objects.isNull(hospital))
 			throw new HospitalNotFoundException(id);
 		
-		String endereco;
-		Float lat = null, lng = null;
-		endereco = hospital.getEndereco();
-		
-		return ResponseEntity.ok().body(hospitalService.buscaHospitaisPor(endereco, lat, lng));
+		return ResponseEntity.ok().body(hospitalService.hospitalMaisProximoHospital(hospital));
 	}
 
 	@GetMapping("/hospitais/{id}")
@@ -112,7 +108,6 @@ public class HospitalController {
 		if (Objects.isNull(hospital))
 			throw new HospitalNotFoundException(id);
 
-		
 		return ResponseEntity.ok().body(leitos);
 	}
 
@@ -126,9 +121,9 @@ public class HospitalController {
 		return ResponseEntity.ok().body("Hospital " + id + " apagado.");
 	}
 	
-	
-	@GetMapping("/hospitais/todos")
-	public ResponseEntity<Collection<Hospital>> listarProdutos() {
+	@GetMapping("/hospitais")
+	@ApiOperation(value = "Retorna todos hospitais")
+	public ResponseEntity<Collection<Hospital>> listarHospitais() {
 		return ResponseEntity.ok().body(hospitalRepository.findAll());
 	}
 

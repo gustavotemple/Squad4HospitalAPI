@@ -43,18 +43,20 @@ public class PacienteController {
 	}
 	
 	@GetMapping("/hospitais/pacientes/near")
-	@ApiOperation(value = "Retorna os hospitais proximos com leitos disponiveis")
+	@ApiOperation(value = "Retorna o hospital mais proximo com leitos disponiveis")
 	public ResponseEntity<Hospital> getHospitalsByLocation(
-			@RequestParam(value = "endereco", required = false) String endereco) {
+			@RequestParam(value = "endereco", required = true) String endereco) {
 		return ResponseEntity.ok().body(hospitalService.hospitalMaisProximoPaciente(endereco));
 	}
 
 	@GetMapping("/hospitais/{id}/pacientes/{paciente}")
-	public Paciente getPaciente(@PathVariable ObjectId id, @PathVariable String paciente) {
-		return pacienteService.getPaciente(id, paciente);
+	@ApiOperation(value = "Retorna todas as informacoes do paciente cadastrado")
+	public ResponseEntity<Paciente> getPaciente(@PathVariable ObjectId id, @PathVariable String paciente) {
+		return ResponseEntity.ok().body(pacienteService.getPaciente(id, paciente));
 	}
 
 	@GetMapping("/hospitais/{id}/pacientes")
+	@ApiOperation(value = "Retorna os pacientes dentro do hospital")
 	public ResponseEntity<Collection<Paciente>> listarPacientes(@PathVariable ObjectId id) {
 		return ResponseEntity.ok().body(pacienteService.findAll(id));
 	}

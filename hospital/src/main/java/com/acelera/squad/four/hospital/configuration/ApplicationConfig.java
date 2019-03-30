@@ -51,9 +51,4 @@ public class ApplicationConfig {
 		return new MongoTemplate(mongo(), "test");
 	}
 
-	@Bean
-	public CascadeSaveMongoEventListener cascadingMongoEventListener() {
-		return new CascadeSaveMongoEventListener();
-	}
-
 }
