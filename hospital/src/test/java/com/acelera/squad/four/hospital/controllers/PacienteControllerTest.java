@@ -46,7 +46,7 @@ public class PacienteControllerTest extends HospitalApplicationTests{
 	@Before
 	public void setup() {        
         hospital = new Hospital(new ObjectId(), "Santa Tereza", "Rua do Java", 5);
-        paciente = new Paciente("2222", "Roberto Carlos", "11111111111111", Paciente.Type.M );
+        paciente = new Paciente(new ObjectId(), "Roberto Carlos", "11111111111111", Paciente.Type.M );
         mockMvc = MockMvcBuilders.standaloneSetup(pacienteController).build();  
         
     }

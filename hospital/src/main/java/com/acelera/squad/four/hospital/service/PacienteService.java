@@ -40,13 +40,13 @@ public class PacienteService {
 		return paciente;
 	}
 
-	public Paciente getPaciente(ObjectId hospitalId, String pacienteId) {
+	public Paciente getPaciente(ObjectId hospitalId, ObjectId pacienteId) {
 		final Paciente paciente = findPacienteBy(findHospitalBy(hospitalId), pacienteId);
 		
 		return new Paciente().build(paciente);
 	}
 
-	public Paciente updatePaciente(ObjectId hospitalId, Paciente pacienteUpdate, String pacienteId) {
+	public Paciente updatePaciente(ObjectId hospitalId, Paciente pacienteUpdate, ObjectId pacienteId) {
 		final Paciente paciente = findPacienteBy(findHospitalBy(hospitalId), pacienteId);
 
 		paciente.setNome(pacienteUpdate.getNome());
@@ -57,7 +57,7 @@ public class PacienteService {
 		return new Paciente().build(paciente);
 	}
 
-	public void deletePaciente(ObjectId hospitalId, String pacienteId) {
+	public void deletePaciente(ObjectId hospitalId, ObjectId pacienteId) {
 		final Hospital hospital = findHospitalBy(hospitalId);
 
 		final Paciente paciente = findPacienteBy(hospital, pacienteId);
@@ -74,7 +74,7 @@ public class PacienteService {
 		return hospital.getPacientes();
 	}
 
-	public void checkin(ObjectId hospitalId, String pacienteId) {
+	public void checkin(ObjectId hospitalId, ObjectId pacienteId) {
 		final Hospital hospital = findHospitalBy(hospitalId);
 
 		Date checkin = new Date();
@@ -85,8 +85,8 @@ public class PacienteService {
 		hospitalRepository.save(hospital);
 	}
 
-	private Paciente findPacienteBy(Hospital hospital, String pacienteId) {
-		final Paciente paciente = hospital.getPacientes().stream().filter(p -> pacienteId.equals(p.getId())).findFirst()
+	private Paciente findPacienteBy(Hospital hospital, ObjectId pacienteId) {
+		final Paciente paciente = hospital.getPacientes().stream().filter(p -> pacienteId.equals(p.getObjectId())).findFirst()
 				.orElse(null);
 		if (Objects.isNull(paciente))
 			throw new PacienteNotFoundException(pacienteId);

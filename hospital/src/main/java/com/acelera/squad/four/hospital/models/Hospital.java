@@ -30,8 +30,7 @@ public class Hospital extends ResourceSupport implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
-	@Id
-	@JsonProperty(access = Access.READ_ONLY)
+	@Id @JsonProperty(access = Access.READ_ONLY)	
 	private ObjectId _id;
 	@Indexed(name="nomeHospital", unique=true)
 	@NotEmpty(message = "Nome do hospital nao preenchido")
@@ -41,13 +40,13 @@ public class Hospital extends ResourceSupport implements Serializable {
 	@NotNull(message = "Leitos totais do hospital nao preenchido")
 	@DecimalMin(value = "1")
 	private Integer leitosTotais;
-	@JsonProperty(access = Access.READ_ONLY)
+	@JsonIgnore
 	private GeoJsonPoint localizacao;
-	@DBRef
+	@DBRef @JsonProperty(access = Access.READ_ONLY)
 	private Collection<Paciente> pacientes = new ArrayList<Paciente>();
-	@DBRef
+	@DBRef @JsonProperty(access = Access.READ_ONLY)
 	private Collection<Produto> estoque = new ArrayList<Produto>();
-	@DBRef
+	@DBRef @JsonProperty(access = Access.READ_ONLY)
 	private Collection<Leito> leitos = new ArrayList<Leito>();
 	
 	public Hospital(ObjectId id, String nome, String endereco, Integer leitosTotais){
@@ -101,12 +100,10 @@ public class Hospital extends ResourceSupport implements Serializable {
 		return leitosTotais - leitos.size();
 	}
 
-	@JsonProperty
 	public GeoJsonPoint getLocalizacao() {
 		return localizacao;
 	}
 
-	@JsonIgnore
 	public void setLocalizacao(GeoJsonPoint localizacao) {
 		this.localizacao = localizacao;
 	}

@@ -1,9 +1,13 @@
 package com.acelera.squad.four.hospital.models;
 
+import java.io.Serializable;
+
+import org.bson.types.ObjectId;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.hateoas.ResourceSupport;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -13,7 +17,9 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @TypeAlias("Produto")
 @Document(collection = "estoque")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Produto {
+public class Produto extends ResourceSupport implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
 
 	public enum Type {
 		COMUM, SANGUE
@@ -21,35 +27,37 @@ public class Produto {
 
 	@Id
 	@JsonProperty(access = Access.READ_ONLY)
-	private String id;
+	private ObjectId _id;
 	@NotEmpty(message = "Nome do item de estoque nao preenchido")
 	private String nome;
-	//@Field("descricao")
 	private String descricao = "";
-	//@Field("quantidade")
 	private int quantidade;
-	//@Field("tipo")
 	private Produto.Type tipo;
 
 	public Produto() {
 	}
 
-	public Produto(String id, String nome, String descricao, int quantidade, Produto.Type tipo) {
-		this.id = id;
+	public Produto(ObjectId _id, String nome, String descricao, int quantidade, Produto.Type tipo) {
+		this._id = _id;
 		this.nome = nome;
 		this.descricao = descricao;
 		this.quantidade = quantidade;
 		this.tipo = tipo;
 	}
 
-	@JsonProperty
-	public String getId() {
-		return id;
+	@JsonProperty("id")
+	public String get_id() {
+		return _id.toHexString();
+	}
+	
+	@JsonIgnore
+	public ObjectId getObjectId() {
+		return _id;
 	}
 
 	@JsonIgnore
-	public void setId(String id) {
-		this.id = id;
+	public void set_id(ObjectId _id) {
+		this._id = _id;
 	}
 
 	public String getNome() {
@@ -85,7 +93,7 @@ public class Produto {
 	}
 
 	public Produto build(Produto prod) {
-		this.id = prod.getId();
+		this._id = prod.getObjectId();
 		this.nome = prod.getNome();
 		this.descricao = prod.getDescricao();
 		this.quantidade = prod.getQuantidade();

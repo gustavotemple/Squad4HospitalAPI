@@ -38,13 +38,13 @@ public class ProdutoService {
 		return prod;
 	}
 
-	public Produto getProduto(ObjectId hospitalId, String produtoId) {		
+	public Produto getProduto(ObjectId hospitalId, ObjectId produtoId) {		
 		final Produto produto = findProdutoBy(findHospitalBy(hospitalId), produtoId);
 		
 		return new Produto().build(produto);
 	}
 
-	public Produto updateProduto(ObjectId hospitalId, Produto produtoUpdate, String produtoId) {
+	public Produto updateProduto(ObjectId hospitalId, Produto produtoUpdate, ObjectId produtoId) {
 		final Produto produto = findProdutoBy(findHospitalBy(hospitalId), produtoId);
 		
 		produto.setNome(produtoUpdate.getNome());
@@ -56,7 +56,7 @@ public class ProdutoService {
 		return new Produto().build(produto);
 	}
 
-	public void deleteProduto(ObjectId hospitalId, String produtoId) {
+	public void deleteProduto(ObjectId hospitalId, ObjectId produtoId) {
 		final Hospital hospital = findHospitalBy(hospitalId);
 		
 		final Produto produto = findProdutoBy(hospital, produtoId);
@@ -73,8 +73,8 @@ public class ProdutoService {
 		return hospital.getEstoque();
 	}
 
-	private Produto findProdutoBy(Hospital hospital, String produtoId) {
-		final Produto produto = hospital.getEstoque().stream().filter(p -> produtoId.equals(p.getId())).findFirst()
+	private Produto findProdutoBy(Hospital hospital, ObjectId produtoId) {
+		final Produto produto = hospital.getEstoque().stream().filter(p -> produtoId.equals(p.getObjectId())).findFirst()
 				.orElse(null);
 		if (Objects.isNull(produto))
 			throw new ProdutoNotFoundException(produtoId);
