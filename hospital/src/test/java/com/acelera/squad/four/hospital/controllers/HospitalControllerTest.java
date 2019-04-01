@@ -46,7 +46,7 @@ public class HospitalControllerTest extends HospitalApplicationTests{
 
     @Test
     public void deveListarHospitais() throws Exception{
-        String url = "/v1/hospitais/todos";
+        String url = "/v1/hospitais/";
 
         // when        
         MockHttpServletResponse response = mockMvc.perform(get(url)
