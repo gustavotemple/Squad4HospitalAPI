@@ -94,7 +94,7 @@ public class PacienteService {
 		return paciente;
 	}
 
-	public void checkout(ObjectId hospitalId, String pacienteId) {
+	public void checkout(ObjectId hospitalId, ObjectId pacienteId) {
 		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
 
 		if (Objects.isNull(hospital))

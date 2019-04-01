@@ -102,7 +102,7 @@ public class PacienteController {
 	}
 	
 	@PostMapping("/hospitais/{id}/pacientes/{paciente}/checkout")
-	public ResponseEntity<String> postCheckout(@PathVariable ObjectId id, @PathVariable String paciente) {
+	public ResponseEntity<String> postCheckout(@PathVariable ObjectId id, @PathVariable ObjectId paciente) {
 		pacienteService.checkout(id, paciente);
 		
 		return ResponseEntity.ok().body("Checkout feito com sucesso");

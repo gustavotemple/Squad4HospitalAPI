@@ -140,9 +140,9 @@ public class Hospital extends ResourceSupport implements Serializable {
 		this.leitos.remove(leito);
 	}
 
-	public Leito getLeito(String pacienteId){		
+	public Leito getLeito(ObjectId pacienteId){		
 		Leito leito = this.leitos.stream()
-					.filter(o -> o.getPacienteId() == pacienteId).findFirst().get();
+					.filter(o -> o.getPacienteId().equals(pacienteId)).findFirst().get();
 		return leito;
 	}
 

@@ -63,7 +63,7 @@ public class PacienteControllerTest extends HospitalApplicationTests{
         
         //when(pacienteController.postCheckout(hospital.getObjectId(), paciente.getId())).willReturn(ResponseEntity<"">);
 
-        pacienteController.postCheckout(hospital.getObjectId(), paciente.getId());
+        pacienteController.postCheckout(hospital.getObjectId(), paciente.getObjectId());
 
         String url = "/v1/hospitais/" + hospital.get_id() + "/pacientes/" + paciente.getId() + "/checkin" ;
 
@@ -78,7 +78,7 @@ public class PacienteControllerTest extends HospitalApplicationTests{
     @Test
     public void deveFazerCHeckout() throws Exception{
 
-        pacienteService.checkout(hospital.getObjectId(),  paciente.getId());
+        pacienteService.checkout(hospital.getObjectId(),  paciente.getObjectId());
 
         String url = "/v1/hospitais/" + this.hospital.get_id() + "/pacientes/" + paciente.getId() + "/checkout" ;
 
