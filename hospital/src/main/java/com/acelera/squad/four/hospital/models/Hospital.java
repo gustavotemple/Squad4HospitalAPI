@@ -125,7 +125,7 @@ public class Hospital extends ResourceSupport implements Serializable {
 	}
 
 	public Collection<Leito> getLeitos() {
-		return leitos;
+		return this.leitos;
 	}
 
 	public void setLeitos(Collection<Leito> leitos) {
@@ -135,4 +135,15 @@ public class Hospital extends ResourceSupport implements Serializable {
 	public void addLeito(Leito leito){
 		this.leitos.add(leito);
 	}
+
+	public void removeLeito(Leito leito){
+		this.leitos.remove(leito);
+	}
+
+	public Leito getLeito(ObjectId pacienteId){		
+		Leito leito = this.leitos.stream()
+					.filter(o -> o.getPacienteId().equals(pacienteId)).findFirst().get();
+		return leito;
+	}
+
 }

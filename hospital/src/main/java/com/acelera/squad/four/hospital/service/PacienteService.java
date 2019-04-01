@@ -1,5 +1,6 @@
 package com.acelera.squad.four.hospital.service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Objects;
@@ -78,7 +79,7 @@ public class PacienteService {
 		final Hospital hospital = findHospitalBy(hospitalId);
 
 		Date checkin = new Date();
-		Leito leito = new Leito(pacienteId, checkin);
+		Leito leito = new Leito(pacienteId, checkin, null);
 		hospital.addLeito(leito);
 		
 		leitoreRepository.save(leito);
@@ -91,6 +92,23 @@ public class PacienteService {
 		if (Objects.isNull(paciente))
 			throw new PacienteNotFoundException(pacienteId);
 		return paciente;
+	}
+
+	public void checkout(ObjectId hospitalId, ObjectId pacienteId) {
+		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
+
+		if (Objects.isNull(hospital))
+			throw new HospitalNotFoundException(hospitalId);
+
+		Date checkout = new Date();
+
+		Collection<Leito> leitos = hospital.getLeitos();
+		Leito leito = leitos.stream().filter(o -> o.getPacienteId().equals(pacienteId)).findFirst().get();
+		leito.setCheckout(checkout);
+		
+		hospital.removeLeito(leito);		
+		leitoreRepository.save(leito);
+		hospitalRepository.save(hospital);
 	}
 
 	private Hospital findHospitalBy(ObjectId hospitalId) {

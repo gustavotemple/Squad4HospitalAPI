@@ -21,14 +21,15 @@ public class Leito{
 	private ObjectId id;
     private ObjectId pacienteID;
     private Date checkin;
-	//private Date checkout;
+	private Date checkout;
 
     public Leito(){}
 
-    public Leito(ObjectId pacienteID, Date checkin){
+    public Leito(ObjectId pacienteID, Date checkin, Date checkout){
         super();                
         this.pacienteID = pacienteID;
         this.checkin = checkin;
+        this.checkout = checkout;
     }
 
     @JsonProperty
@@ -41,4 +42,5 @@ public class Leito{
     public void setId(ObjectId id){this.id = id;}
     public void setPacienteId(ObjectId pacienteId){this.pacienteID = pacienteId;}
     public void setCheckin(Date checkin){this.checkin = checkin;}
+    public void setCheckout(Date checkout){this.checkout = checkout;}
 }
