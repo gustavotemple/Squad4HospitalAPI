@@ -1,5 +1,6 @@
 package com.acelera.squad.four.hospital.service;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Objects;
@@ -135,10 +136,8 @@ public class PacienteService {
 
 		Date checkout = new Date();
 
-		
-		//Leito leito = hospital.getLeitos().stream().filter(o -> o.getPacienteId() == pacienteId).findFirst().get();
-		Leito leito = hospital.getLeitos().stream().findFirst().get();
-		//Leito leito = hospital.getLeito(pacienteId);
+		Collection<Leito> leitos = hospital.getLeitos();
+		Leito leito = leitos.stream().filter(o -> o.getPacienteId().equals(pacienteId)).findFirst().get();
 		leito.setCheckout(checkout);
 		
 		hospital.removeLeito(leito);		

@@ -128,7 +128,7 @@ public class Hospital extends ResourceSupport implements Serializable {
 	}
 
 	public Collection<Leito> getLeitos() {
-		return leitos;
+		return this.leitos;
 	}
 
 	public void setLeitos(Collection<Leito> leitos) {
