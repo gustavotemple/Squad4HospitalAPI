@@ -10,7 +10,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.web.client.RestTemplate;
 
-import com.acelera.squad.four.hospital.cascade.CascadeSaveMongoEventListener;
 import com.acelera.squad.four.hospital.models.Hospital;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
@@ -49,11 +48,6 @@ public class ApplicationConfig {
 	@Bean
 	public MongoTemplate mongoTemplate() throws Exception {
 		return new MongoTemplate(mongo(), "test");
-	}
-
-	@Bean
-	public CascadeSaveMongoEventListener cascadingMongoEventListener() {
-		return new CascadeSaveMongoEventListener();
 	}
 
 }

@@ -1,4 +1,4 @@
-package com.acelera.squad.four.hospital;
+package com.acelera.squad.four.hospital.controllers;
 
 import com.acelera.squad.four.hospital.controllers.PacienteController;
 import com.acelera.squad.four.hospital.models.Paciente;
@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import com.acelera.squad.four.hospital.HospitalApplicationTests;
 import com.acelera.squad.four.hospital.controllers.HospitalController;
 import com.acelera.squad.four.hospital.models.Hospital;
 import com.acelera.squad.four.hospital.models.Paciente;
@@ -52,7 +53,7 @@ public class PacienteControllerTest extends HospitalApplicationTests{
 	@Before
 	public void setup() {        
         hospital = new Hospital(new ObjectId(), "Santa Tereza", "Rua do Java", 5);
-        paciente = new Paciente("2222", "Roberto Carlos", "11111111111111", Paciente.Type.M );
+        paciente = new Paciente(new ObjectId(), "Roberto Carlos", "11111111111111", Paciente.Type.M );
         mockMvc = MockMvcBuilders.standaloneSetup(pacienteController).build();  
         
     }

@@ -10,6 +10,7 @@ import org.springframework.data.geo.Point;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.stereotype.Service;
 
+import com.acelera.squad.four.hospital.exceptions.BadEnderecoException;
 import com.acelera.squad.four.hospital.models.Hospital;
 import com.acelera.squad.four.hospital.models.geocode.Geocode;
 import com.acelera.squad.four.hospital.repositories.HospitalRepository;
@@ -21,7 +22,7 @@ public class HospitalService {
 	private static final String KEY = "AIzaSyAczcT1dO-iPGi273Mu3fr9uxJoUgArfyI";
 
 	private static int MIN_LEITOS_DISPONIVEIS = 0;
-	private int QTD_MIN_PRODUTOS = 4;
+	private static int QTD_MIN_PRODUTOS = 4;
 
 	@Autowired
 	private GeocodeClient geocodeClient;
@@ -31,9 +32,8 @@ public class HospitalService {
 	public GeoJsonPoint buscaCoordenadasPor(final String endereco) {
 		final Geocode geocode = geocodeClient.buscaCoordenadasPor(endereco, KEY);
 		
-		if(geocode.getResults().isEmpty()) {
-			throw new IllegalArgumentException("Endereço nao existente");
-		}		
+		if(geocode.getResults().isEmpty())
+			throw new BadEnderecoException();
 
 		final GeoJsonPoint point = new GeoJsonPoint(geocode.getResults().get(0).getGeometry().getLocation().getLng(),
 				geocode.getResults().get(0).getGeometry().getLocation().getLat());
@@ -41,31 +41,37 @@ public class HospitalService {
 		return point;
 	}
 
-	public Hospital buscaHospitaisPor(final String endereco, final Float lat, final Float lng) {
-		Point point;
+	/**
+	 * Caso o hospital precise de um produto, por exemplo, um banco de sangue, eh
+	 * importante fazer o envio do hospital mais proximo ao local.
+	 * 
+	 * @param endereco do hospital
+	 * @return Hospital
+	 */
+	public Hospital hospitalMaisProximoHospital(final Hospital hospital) {
+		final Point point = buscaCoordenadasPor(hospital.getEndereco());
 
-		if (!Objects.isNull(endereco))
-			point = buscaCoordenadasPor(endereco);
-		else if (!Objects.isNull(lat) && !Objects.isNull(lng))
-			point = new Point(lng, lat);
-		else
-			throw new IllegalArgumentException("Pametro nao preenchido");
-
-		List<Hospital> hospitals = hospitalRepository.findByLocalizacaoNear(point);
+		final List<Hospital> hospitals = hospitalRepository.findByLocalizacaoNear(point);
 			
 		return hospitals.stream()
-				.filter(leitosEProdutosDisponiveis())
+				.filter(produtosDisponiveis())
 				.skip(1).findFirst().get();
 	}
 
-	
+	/**
+	 * Ao encontrar um paciente eh importante o recomendar para um hospital mais
+	 * proximo e que tenha vaga disponivel.
+	 * 
+	 * @param endereco do paciente
+	 * @return Hospital
+	 */
 	public Hospital hospitalMaisProximoPaciente(final String endereco) {
 		Point point;
 
 		if (!Objects.isNull(endereco))
 			point = buscaCoordenadasPor(endereco);		
 		else
-			throw new IllegalArgumentException("Pametro nao preenchido");
+			throw new BadEnderecoException();
 
 		List<Hospital> hospitals = hospitalRepository.findByLocalizacaoNear(point);
 
@@ -77,7 +83,11 @@ public class HospitalService {
 		return hospital -> hospital.getLeitosDisponiveis() > MIN_LEITOS_DISPONIVEIS && 
 				hospital.getEstoque().stream().allMatch(prod -> prod.getQuantidade() > QTD_MIN_PRODUTOS) &&
 				!hospital.getEstoque().isEmpty();
-
+	}
+	
+	private Predicate<Hospital> produtosDisponiveis(){
+		return hospital -> hospital.getEstoque().stream().allMatch(prod -> prod.getQuantidade() > QTD_MIN_PRODUTOS) &&
+				!hospital.getEstoque().isEmpty();
 	}
 
 }

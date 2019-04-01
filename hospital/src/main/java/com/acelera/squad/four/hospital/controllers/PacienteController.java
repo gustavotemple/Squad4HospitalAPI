@@ -1,5 +1,8 @@
 package com.acelera.squad.four.hospital.controllers;
 
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+
 import java.util.Collection;
 
 import javax.validation.Valid;
@@ -39,40 +42,60 @@ public class PacienteController {
 
 	@PostMapping("/hospitais/{id}/pacientes")
 	public ResponseEntity<Paciente> addPaciente(@PathVariable ObjectId id, @Valid @RequestBody Paciente novoPaciente) {
-		return ResponseEntity.ok(pacienteService.addPaciente(id, novoPaciente));
+		final Paciente paciente = pacienteService.addPaciente(id, novoPaciente);
+		
+		paciente.add(linkTo(methodOn(PacienteController.class).getPaciente(id, paciente.getObjectId())).withSelfRel());
+		
+		return ResponseEntity.ok(paciente);
 	}
 	
 	@GetMapping("/hospitais/pacientes/near")
-	@ApiOperation(value = "Retorna os hospitais proximos com leitos disponiveis")
+	@ApiOperation(value = "Retorna o hospital mais proximo com leitos disponiveis")
 	public ResponseEntity<Hospital> getHospitalsByLocation(
-			@RequestParam(value = "endereco", required = false) String endereco) {
-		return ResponseEntity.ok().body(hospitalService.hospitalMaisProximoPaciente(endereco));
+			@RequestParam(value = "endereco", required = true) String endereco) {
+		final Hospital hospital = hospitalService.hospitalMaisProximoPaciente(endereco);
+		
+		hospital.add(linkTo(methodOn(HospitalController.class).getHospitalById(hospital.getObjectId())).withSelfRel());
+		
+		return ResponseEntity.ok().body(hospital);
 	}
 
 	@GetMapping("/hospitais/{id}/pacientes/{paciente}")
-	public Paciente getPaciente(@PathVariable ObjectId id, @PathVariable String paciente) {
-		return pacienteService.getPaciente(id, paciente);
+	@ApiOperation(value = "Retorna todas as informacoes do paciente cadastrado")
+	public ResponseEntity<Paciente> getPaciente(@PathVariable ObjectId id, @PathVariable ObjectId paciente) {
+		final Paciente p = pacienteService.getPaciente(id, paciente);
+		
+		p.add(linkTo(methodOn(PacienteController.class).getPaciente(id, p.getObjectId())).withSelfRel());
+		
+		return ResponseEntity.ok().body(p);
 	}
 
 	@GetMapping("/hospitais/{id}/pacientes")
+	@ApiOperation(value = "Retorna os pacientes dentro do hospital")
 	public ResponseEntity<Collection<Paciente>> listarPacientes(@PathVariable ObjectId id) {
 		return ResponseEntity.ok().body(pacienteService.findAll(id));
 	}
 
 	@PutMapping("/hospitais/{id}/pacientes/{paciente}")
-	public ResponseEntity<Paciente> updatePaciente(@PathVariable ObjectId id, @Valid @RequestBody Paciente pacienteUpdate, @PathVariable String paciente) {
-		return ResponseEntity.ok(pacienteService.updatePaciente(id, pacienteUpdate, paciente));
+	@ApiOperation(value = "Atualiza um paciente")
+	public ResponseEntity<Paciente> updatePaciente(@PathVariable ObjectId id, @Valid @RequestBody Paciente pacienteUpdate, @PathVariable ObjectId paciente) {
+		final Paciente p = pacienteService.updatePaciente(id, pacienteUpdate, paciente);
+		
+		p.add(linkTo(methodOn(PacienteController.class).getPaciente(id, p.getObjectId())).withSelfRel());
+		
+		return ResponseEntity.ok().body(p);
 	}
 
 	@DeleteMapping("/hospitais/{id}/pacientes/{paciente}")
-	public ResponseEntity<String> deletePaciente(@PathVariable ObjectId id, @PathVariable String paciente) {
+	@ApiOperation(value = "Exclui um paciente")
+	public ResponseEntity<String> deletePaciente(@PathVariable ObjectId id, @PathVariable ObjectId paciente) {
 		pacienteService.deletePaciente(id, paciente);
 
 		return ResponseEntity.ok().body("Paciente " + id + " apagado.");
 	}
 
 	@PostMapping("/hospitais/{id}/pacientes/{paciente}/checkin")
-	public ResponseEntity<String> postCheckin(@PathVariable ObjectId id, @PathVariable String paciente) {
+	public ResponseEntity<String> checkin(@PathVariable ObjectId id, @PathVariable ObjectId paciente) {
 		pacienteService.checkin(id, paciente);
 		
 		return ResponseEntity.ok().body("Checkin feito com sucesso");

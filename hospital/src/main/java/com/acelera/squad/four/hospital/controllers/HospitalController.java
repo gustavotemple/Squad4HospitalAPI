@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,8 +26,6 @@ import com.acelera.squad.four.hospital.exceptions.HospitalNotFoundException;
 import com.acelera.squad.four.hospital.models.Hospital;
 import com.acelera.squad.four.hospital.models.Leito;
 import com.acelera.squad.four.hospital.repositories.HospitalRepository;
-import com.acelera.squad.four.hospital.repositories.PacienteRepository;
-import com.acelera.squad.four.hospital.repositories.ProdutoRepository;
 import com.acelera.squad.four.hospital.service.HospitalService;
 
 import io.swagger.annotations.Api;
@@ -42,30 +41,11 @@ public class HospitalController {
 	private HospitalService hospitalService;
 	@Autowired
 	private HospitalRepository hospitalRepository;
-	@Autowired
-	private ProdutoRepository produtoRepository;
-	@Autowired
-	private PacienteRepository pacienteRepository;
 
 	@PostMapping("/hospitais")
 	@ApiOperation(value = "Adiciona um hospital")
-	public ResponseEntity<Hospital> addHospital(@Valid @RequestBody Hospital hospital) {
-		
+	public ResponseEntity<Hospital> addHospital(@Valid @RequestBody Hospital hospital) {	
 		hospital.setLocalizacao(hospitalService.buscaCoordenadasPor(hospital.getEndereco()));
-		hospital.set_id(ObjectId.get());
-
-		if (hospital.getEstoque() != null) {
-			hospital.getEstoque().forEach(p -> {
-				p.setId(ObjectId.get().toHexString());
-				produtoRepository.save(p);
-			});
-		}
-		if (hospital.getPacientes() != null) {
-			hospital.getPacientes().forEach(p -> {
-				p.setId(ObjectId.get().toHexString());
-				pacienteRepository.save(p);
-			});
-		}
 
 		hospitalRepository.save(hospital);
 
@@ -75,28 +55,37 @@ public class HospitalController {
 	}
 
 	@GetMapping("/hospitais/near/{id}")
-	@ApiOperation(value = "Retorna os hospitais proximos com leitos disponiveis")
-	public ResponseEntity<Hospital> getHospitalsByLocation(@PathVariable ObjectId id) {
+	@ApiOperation(value = "Retorna o hospital mais proximo com estoque disponivel")
+	public ResponseEntity<Hospital> getHospitalByLocation(@PathVariable ObjectId id) {		
+		final Hospital hospital = findHospitalBy(id);
 		
-		Hospital hospital = hospitalRepository.findBy_id(id);
-
-		if (Objects.isNull(hospital))
-			throw new HospitalNotFoundException(id);
+		final Hospital hospitalMaisProximo = hospitalService.hospitalMaisProximoHospital(hospital);
 		
-		String endereco;
-		Float lat = null, lng = null;
-		endereco = hospital.getEndereco();
+		hospitalMaisProximo.add(linkTo(methodOn(HospitalController.class).getHospitalById(hospital.getObjectId())).withSelfRel());
 		
-		return ResponseEntity.ok().body(hospitalService.buscaHospitaisPor(endereco, lat, lng));
+		return ResponseEntity.ok().body(hospitalMaisProximo);
 	}
 
 	@GetMapping("/hospitais/{id}")
 	@ApiOperation(value = "Retorna um hospital")
 	public ResponseEntity<Hospital> getHospitalById(@PathVariable ObjectId id) {
-		Hospital hospital = hospitalRepository.findBy_id(id);
+		final Hospital hospital = findHospitalBy(id);
 
-		if (Objects.isNull(hospital))
-			throw new HospitalNotFoundException(id);
+		hospital.add(linkTo(methodOn(HospitalController.class).getHospitalById(hospital.getObjectId())).withSelfRel());
+
+		return ResponseEntity.ok().body(hospital);
+	}
+	
+	@PutMapping("/hospitais/{id}")
+	@ApiOperation(value = "Atualiza um hospital")
+	public ResponseEntity<Hospital> updateHospital(@PathVariable ObjectId id, @Valid @RequestBody Hospital h) {
+		final Hospital hospital = findHospitalBy(id);
+		
+		hospital.setEndereco(h.getEndereco());
+		hospital.setNome(h.getNome());
+		hospital.setLeitosTotais(h.getLeitosTotais());
+		
+		hospitalRepository.save(hospital);
 
 		hospital.add(linkTo(methodOn(HospitalController.class).getHospitalById(hospital.getObjectId())).withSelfRel());
 
@@ -106,18 +95,15 @@ public class HospitalController {
 	@GetMapping("/hospitais/{id}/leitos")
 	@ApiOperation(value = "Retorna os leitos de um hospital")
 	public ResponseEntity<Collection<Leito>> getLeitosById(@PathVariable ObjectId id) {
-		Hospital hospital = hospitalRepository.findBy_id(id);
+		final Hospital hospital = findHospitalBy(id);
+		
 		Collection<Leito> leitos = hospital.getLeitos();
 
-		if (Objects.isNull(hospital))
-			throw new HospitalNotFoundException(id);
-
-		
 		return ResponseEntity.ok().body(leitos);
 	}
 
 	@DeleteMapping("/hospitais/{id}")
-	@ApiOperation(value = "Apaga um hospital")
+	@ApiOperation(value = "Exclui um hospital")
 	public ResponseEntity<String> deleteHospital(@PathVariable String id) {
 		if (!hospitalRepository.exists(id))
 			throw new HospitalNotFoundException(id);
@@ -126,10 +112,17 @@ public class HospitalController {
 		return ResponseEntity.ok().body("Hospital " + id + " apagado.");
 	}
 	
-	
-	@GetMapping("/hospitais/todos")
-	public ResponseEntity<Collection<Hospital>> listarProdutos() {
+	@GetMapping("/hospitais")
+	@ApiOperation(value = "Retorna todos hospitais")
+	public ResponseEntity<Collection<Hospital>> listarHospitais() {
 		return ResponseEntity.ok().body(hospitalRepository.findAll());
+	}
+
+	private Hospital findHospitalBy(ObjectId hospitalId) {
+		final Hospital hospital = hospitalRepository.findBy_id(hospitalId);
+		if (Objects.isNull(hospital))
+			throw new HospitalNotFoundException(hospitalId);
+		return hospital;
 	}
 
 }

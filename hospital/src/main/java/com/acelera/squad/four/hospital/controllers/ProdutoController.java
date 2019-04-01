@@ -1,5 +1,8 @@
 package com.acelera.squad.four.hospital.controllers;
 
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+
 import java.util.Collection;
 
 import javax.validation.Valid;
@@ -21,10 +24,11 @@ import com.acelera.squad.four.hospital.models.Produto;
 import com.acelera.squad.four.hospital.service.ProdutoService;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 @Api(value = "estoque")
-@RequestMapping("/v1")
+@RequestMapping(path = "/v1")
 @ExposesResourceFor(Produto.class)
 public class ProdutoController {
 
@@ -32,27 +36,44 @@ public class ProdutoController {
 	private ProdutoService produtoService;
 
 	@PostMapping("/hospitais/{id}/estoque")
+	@ApiOperation(value = "Adiciona um produto no estoque de um hospital")
 	public ResponseEntity<Produto> addProduto(@PathVariable ObjectId id, @Valid @RequestBody Produto newProduto) {
-		return ResponseEntity.ok(produtoService.addProduto(id, newProduto));
+		final Produto produto = produtoService.addProduto(id, newProduto);
+		
+		produto.add(linkTo(methodOn(ProdutoController.class).getProduto(id, produto.getObjectId())).withSelfRel());
+		
+		return ResponseEntity.ok(produto);
 	}
 
 	@GetMapping("/hospitais/{id}/estoque/{produto}")
-	public Produto getProduto(@PathVariable ObjectId id, @PathVariable String produto) {
-		return produtoService.getProduto(id, produto);
+	@ApiOperation(value = "Retorna mais detalhes de um produto")
+	public ResponseEntity<Produto> getProduto(@PathVariable ObjectId id, @PathVariable ObjectId produto) {
+		final Produto prod = produtoService.getProduto(id, produto);
+		
+		prod.add(linkTo(methodOn(ProdutoController.class).getProduto(id, prod.getObjectId())).withSelfRel());
+		
+		return ResponseEntity.ok(prod);
 	}
 
 	@GetMapping("/hospitais/{id}/estoque")
+	@ApiOperation(value = "Retorna as informacoes dos produtos existentes no estoque")
 	public ResponseEntity<Collection<Produto>> listarProdutos(@PathVariable ObjectId id) {
 		return ResponseEntity.ok().body(produtoService.findAll(id));
 	}
 
 	@PutMapping("/hospitais/{id}/estoque/{produto}")
-	public ResponseEntity<Produto> updateProduto(@PathVariable ObjectId id, @Valid @RequestBody Produto produtoUpdate, @PathVariable String produto) {
-		return ResponseEntity.ok(produtoService.updateProduto(id, produtoUpdate, produto));
+	@ApiOperation(value = "Atualiza um produto")
+	public ResponseEntity<Produto> updateProduto(@PathVariable ObjectId id, @Valid @RequestBody Produto produtoUpdate, @PathVariable ObjectId produto) {
+		final Produto prod = produtoService.updateProduto(id, produtoUpdate, produto);
+		
+		prod.add(linkTo(methodOn(ProdutoController.class).getProduto(id, prod.getObjectId())).withSelfRel());
+		
+		return ResponseEntity.ok(prod);
 	}
 
 	@DeleteMapping("/hospitais/{id}/estoque/{produto}")
-	public ResponseEntity<String> deleteUser(@PathVariable ObjectId id, @PathVariable String produto) {
+	@ApiOperation(value = "Exclui um produto")
+	public ResponseEntity<String> deleteProduto(@PathVariable ObjectId id, @PathVariable ObjectId produto) {
 		produtoService.deleteProduto(id, produto);
 
 		return ResponseEntity.ok().body("Produto " + id + " apagado.");

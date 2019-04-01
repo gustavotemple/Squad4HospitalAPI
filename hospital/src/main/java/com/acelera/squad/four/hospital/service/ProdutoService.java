@@ -3,6 +3,7 @@ package com.acelera.squad.four.hospital.service;
 import org.springframework.stereotype.Service;
 
 import com.acelera.squad.four.hospital.exceptions.HospitalNotFoundException;
+import com.acelera.squad.four.hospital.exceptions.ProdutoNotFoundException;
 import com.acelera.squad.four.hospital.models.Hospital;
 import com.acelera.squad.four.hospital.models.Produto;
 import com.acelera.squad.four.hospital.repositories.HospitalRepository;
@@ -23,94 +24,68 @@ public class ProdutoService {
 	private HospitalRepository hospitalRepository;
 
 	public Produto addProduto(ObjectId hospitalId, Produto produto) {
-		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
-
-		if (Objects.isNull(hospital))
-			throw new HospitalNotFoundException(hospitalId);
-
-		Produto prod = new Produto();
+		final Produto prod = new Produto();
 		prod.setNome(produto.getNome());
 		prod.setDescricao(produto.getDescricao());
 		prod.setQuantidade(produto.getQuantidade());
 		prod.setTipo(produto.getTipo());
-
 		produtoRepository.save(prod);
 
+		final Hospital hospital = findHospitalBy(hospitalId);
 		hospital.getEstoque().add(prod);
-
 		hospitalRepository.save(hospital);
 
 		return prod;
 	}
 
-	public Produto getProduto(ObjectId hospitalId, String produtoId) {		
-		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
-
-		if (Objects.isNull(hospital))
-			throw new HospitalNotFoundException(hospitalId);
-
-		Produto produto = hospital.getEstoque().stream().filter(p -> produtoId.equals(p.getId())).findFirst().orElse(null);
-
-		if (Objects.isNull(produto)) {
-			/* handle this exception using {@link RestExceptionHandler} */
-			throw new NullPointerException();
-		}
+	public Produto getProduto(ObjectId hospitalId, ObjectId produtoId) {		
+		final Produto produto = findProdutoBy(findHospitalBy(hospitalId), produtoId);
+		
 		return new Produto().build(produto);
 	}
 
-	public Produto updateProduto(ObjectId hospitalId, Produto produtoUpdate, String produtoId) {
-		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
-
-		if (Objects.isNull(hospital))
-			throw new HospitalNotFoundException(hospitalId);
-
-		Produto prod = hospital.getEstoque().stream().filter(p -> produtoId.equals(p.getId())).findFirst().orElse(null);
-
-		if (Objects.isNull(prod)) {
-			/* handle this exception using {@link RestExceptionHandler} */
-			throw new NullPointerException();
-		}
-		hospital.getEstoque().remove(prod);
+	public Produto updateProduto(ObjectId hospitalId, Produto produtoUpdate, ObjectId produtoId) {
+		final Produto produto = findProdutoBy(findHospitalBy(hospitalId), produtoId);
 		
-		prod.setNome(produtoUpdate.getNome());
-		prod.setDescricao(produtoUpdate.getDescricao());
-		prod.setQuantidade(produtoUpdate.getQuantidade());
-		prod.setTipo(produtoUpdate.getTipo());
+		produto.setNome(produtoUpdate.getNome());
+		produto.setDescricao(produtoUpdate.getDescricao());
+		produto.setQuantidade(produtoUpdate.getQuantidade());
+		produto.setTipo(produtoUpdate.getTipo());
+		produtoRepository.save(produto);
 
-		produtoRepository.save(prod);
-
-		hospital.getEstoque().add(prod);
-
-		hospitalRepository.save(hospital);
-		return new Produto().build(prod);
+		return new Produto().build(produto);
 	}
 
-	public void deleteProduto(ObjectId hospitalId, String produtoId) {
-		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
-
-		if (Objects.isNull(hospital))
-			throw new HospitalNotFoundException(hospitalId);
-		Produto prod = hospital.getEstoque().stream().filter(p -> produtoId.equals(p.getId())).findFirst().orElse(null);
-
-		if (Objects.isNull(prod)) {
-			/* handle this exception using {@link RestExceptionHandler} */
-			throw new NullPointerException();
-		}
-
-		Produto produto = hospital.getEstoque().stream().filter(p -> produtoId.equals(p.getId())).findFirst().orElse(null);
-
+	public void deleteProduto(ObjectId hospitalId, ObjectId produtoId) {
+		final Hospital hospital = findHospitalBy(hospitalId);
+		
+		final Produto produto = findProdutoBy(hospital, produtoId);
+		
 		hospital.getEstoque().remove(produto);
-
 		hospitalRepository.save(hospital);
+		
+		produtoRepository.delete(produtoId);
 	}
 
 	public Collection<Produto> findAll(ObjectId hospitalId) {
-		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
-
-		if (Objects.isNull(hospital))
-			throw new HospitalNotFoundException(hospitalId);
+		final Hospital hospital = findHospitalBy(hospitalId);
 
 		return hospital.getEstoque();
+	}
+
+	private Produto findProdutoBy(Hospital hospital, ObjectId produtoId) {
+		final Produto produto = hospital.getEstoque().stream().filter(p -> produtoId.equals(p.getObjectId())).findFirst()
+				.orElse(null);
+		if (Objects.isNull(produto))
+			throw new ProdutoNotFoundException(produtoId);
+		return produto;
+	}
+
+	private Hospital findHospitalBy(ObjectId hospitalId) {
+		final Hospital hospital = hospitalRepository.findBy_id(hospitalId);
+		if (Objects.isNull(hospital))
+			throw new HospitalNotFoundException(hospitalId);
+		return hospital;
 	}
 
 }

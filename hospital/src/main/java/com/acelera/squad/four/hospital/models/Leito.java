@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -16,16 +17,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Leito{
 
-    @Id
-	@JsonProperty(access = Access.READ_ONLY)
-	private String id;
-    private String pacienteID;
+    @Id @JsonProperty(access = Access.READ_ONLY)
+	private ObjectId id;
+    private ObjectId pacienteID;
     private Date checkin;
 	private Date checkout;
 
     public Leito(){}
 
-    public Leito(String pacienteID, Date checkin, Date checkout){
+    public Leito(ObjectId pacienteID, Date checkin, Date checkout){
         super();                
         this.pacienteID = pacienteID;
         this.checkin = checkin;
@@ -33,15 +33,14 @@ public class Leito{
     }
 
     @JsonProperty
-    public String getId(){ return this.id;}
+    public ObjectId getId(){ return this.id;}
     @JsonProperty
-    public String getPacienteId(){return this.pacienteID;}
-
-    public Date getCheckout(){return this.checkout;}    
+    public ObjectId getPacienteId(){return this.pacienteID;}
+    
     public Date getChekIn(){return this.checkin;}
 
-    public void setId(String id){this.id = id;}
-    public void setPacienteId(String pacienteId){this.pacienteID = pacienteId;}
+    public void setId(ObjectId id){this.id = id;}
+    public void setPacienteId(ObjectId pacienteId){this.pacienteID = pacienteId;}
     public void setCheckin(Date checkin){this.checkin = checkin;}
     public void setCheckout(Date checkout){this.checkout = checkout;}
 }

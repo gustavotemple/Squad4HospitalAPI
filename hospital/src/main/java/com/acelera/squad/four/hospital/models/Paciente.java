@@ -1,12 +1,14 @@
 package com.acelera.squad.four.hospital.models;
 
-import java.util.Date;
+import java.io.Serializable;
 
+import org.bson.types.ObjectId;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.hateoas.ResourceSupport;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -16,15 +18,16 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 @TypeAlias("Paciente")
 @Document(collection = "pacientes")
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Paciente {
+public class Paciente extends ResourceSupport implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
 	
 	public enum Type {
 		M, F
 	}
 
-	@Id
-	@JsonProperty(access = Access.READ_ONLY)
-	private String id;
+	@Id @JsonProperty(access = Access.READ_ONLY)
+	private ObjectId _id;
 	@NotEmpty(message = "Nome do paciente nao preenchido")
 	private String nome;
 	@Indexed(name="cpfPaciente", unique=true)
@@ -35,22 +38,27 @@ public class Paciente {
 	public Paciente() {
 	}
 
-	public Paciente(String id, String nome, String cpf, Paciente.Type sexo) {
+	public Paciente(ObjectId _id, String nome, String cpf, Paciente.Type sexo) {
 		super();
-		this.id = id;
+		this._id = _id;
 		this.nome = nome;
 		this.cpf = cpf;
 		this.sexo = sexo;
 	}
 
-	@JsonProperty
-	public String getId() {
-		return id;
+	@JsonProperty("id")
+	public String get_id() {
+		return _id.toHexString();
+	}
+	
+	@JsonIgnore
+	public ObjectId getObjectId() {
+		return _id;
 	}
 
 	@JsonIgnore
-	public void setId(String id) {
-		this.id = id;
+	public void set_id(ObjectId _id) {
+		this._id = _id;
 	}
 
 	public String getNome() {
@@ -60,8 +68,6 @@ public class Paciente {
 	public void setNome(String nome) {
 		this.nome = nome;
 	}
-
-
 
 	public String getCpf() {
 		return cpf;
@@ -80,7 +86,7 @@ public class Paciente {
 	}
 
 	public Paciente build(Paciente novoPaciente) {
-		this.id = novoPaciente.getId();
+		this._id = novoPaciente.getObjectId();
 		this.nome = novoPaciente.getNome();
 
 		this.cpf = novoPaciente.getCpf();

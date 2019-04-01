@@ -1,7 +1,8 @@
-package com.acelera.squad.four.hospital;
+package com.acelera.squad.four.hospital.controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.acelera.squad.four.hospital.HospitalApplicationTests;
 import com.acelera.squad.four.hospital.controllers.HospitalController;
 import com.acelera.squad.four.hospital.models.Hospital;
 import com.acelera.squad.four.hospital.repositories.HospitalRepository;
@@ -45,7 +46,7 @@ public class HospitalControllerTest extends HospitalApplicationTests{
 
     @Test
     public void deveListarHospitais() throws Exception{
-        String url = "/v1/hospitais/todos";
+        String url = "/v1/hospitais/";
 
         // when        
         MockHttpServletResponse response = mockMvc.perform(get(url)
