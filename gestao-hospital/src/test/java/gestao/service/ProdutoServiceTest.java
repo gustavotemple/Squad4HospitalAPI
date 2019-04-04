@@ -37,11 +37,13 @@ public class ProdutoServiceTest {
 
 	HospitalRepository test = mock(HospitalRepository.class);
 
+	private final int ESTOQUE_DEPOIS_INSERIR = 4;
+	
 	private Hospital hospital;
 	private Produto prodOne;
 	private Produto prodTwo;
 	private Produto prodThree;
-	Collection<Produto> list = new ArrayList<Produto>();
+	Collection<Produto> estoque = new ArrayList<Produto>();
 
 	@Before
 	public void setUp() {
@@ -53,11 +55,20 @@ public class ProdutoServiceTest {
 		prodTwo = new Produto(new ObjectId(), "Sangue", "O negativo", 10, null);
 		prodThree = new Produto(new ObjectId(), "Soro", "fisiologico", 10, null);
 
-		list.add(prodOne);
-		list.add(prodTwo);
-		list.add(prodThree);
+		estoque.add(prodOne);
+		estoque.add(prodTwo);
+		estoque.add(prodThree);
 
-		hospital.setEstoque(list);
+		hospital.setEstoque(estoque);
+	}
+
+	@Test
+	public void deveInserirProduto() {
+		Mockito.when(hospitalRepository.findBy_id(hospital.getObjectId())).thenReturn(hospital);
+		Produto produtoFour = new Produto(new ObjectId(), "Esparadrapo", "branco", 15, null);
+		produtoService.addProduto(hospital.getObjectId(), produtoFour);
+		assertEquals(produtoService.findAll(hospital.getObjectId()).size(), ESTOQUE_DEPOIS_INSERIR);
+
 	}
 
 	@Test
@@ -65,7 +76,7 @@ public class ProdutoServiceTest {
 
 		Mockito.when(hospitalRepository.findBy_id(hospital.getObjectId())).thenReturn(hospital);
 
-		assertEquals(produtoService.findAll(hospital.getObjectId()), list);
+		assertEquals(produtoService.findAll(hospital.getObjectId()), estoque);
 		verify(hospitalRepository, atLeastOnce()).findBy_id(hospital.getObjectId());
 
 	}
