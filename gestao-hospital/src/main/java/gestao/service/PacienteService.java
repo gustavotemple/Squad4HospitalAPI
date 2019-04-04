@@ -1,6 +1,5 @@
 package gestao.service;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Objects;
@@ -10,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import gestao.exceptions.HospitalNotFoundException;
+import gestao.exceptions.LeitoNotFoundExcpetion;
 import gestao.exceptions.PacienteNotFoundException;
 import gestao.models.Hospital;
 import gestao.models.Leito;
@@ -103,7 +103,11 @@ public class PacienteService {
 		Date checkout = new Date();
 
 		Collection<Leito> leitos = hospital.getLeitos();
-		Leito leito = leitos.stream().filter(o -> o.getPacienteId().equals(pacienteId)).findFirst().get();
+		Leito leito = leitos.stream().filter(o -> o.getPacienteId().equals(pacienteId)).findFirst().orElse(null);
+		
+		if(Objects.isNull(leito))
+			throw new LeitoNotFoundExcpetion(hospitalId);
+			
 		leito.setCheckout(checkout);
 		
 		hospital.removeLeito(leito);		
