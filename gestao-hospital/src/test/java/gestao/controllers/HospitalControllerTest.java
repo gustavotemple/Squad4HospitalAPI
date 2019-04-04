@@ -1,28 +1,26 @@
 package gestao.controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
-import gestao.ApplicationTests;
-import gestao.controllers.HospitalController;
-import gestao.models.Hospital;
-import gestao.repositories.HospitalRepository;
-
+import org.bson.types.ObjectId;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.http.MediaType;
-import org.bson.types.ObjectId;
-import org.junit.Before;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import gestao.ApplicationTests;
+import gestao.models.Hospital;
+import gestao.repositories.HospitalRepository;
+import gestao.service.HospitalService;
 
 @RunWith(SpringRunner.class)
 public class HospitalControllerTest extends ApplicationTests{
@@ -32,7 +30,10 @@ public class HospitalControllerTest extends ApplicationTests{
 
     @Mock
     private HospitalRepository hospitalRepository;
-
+    
+    @Mock 
+    private HospitalService hospitalService;
+    
     private MockMvc mockMvc;
     private Hospital hospital;
 
