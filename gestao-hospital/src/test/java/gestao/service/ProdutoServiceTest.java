@@ -89,6 +89,14 @@ public class ProdutoServiceTest {
 
 		verify(hospitalRepository, atLeastOnce()).findBy_id(hospital.getObjectId());
 	}
+	
+	@Test(expected = ProdutoNotFoundException.class)
+	public void naoDeveListarProdutoSeNaoHouver() {
+		Mockito.when(hospitalRepository.findBy_id(hospital.getObjectId())).thenReturn(hospital);
+
+		produtoService.getProduto(hospital.getObjectId(), new ObjectId());
+
+	}
 
 	@Test
 	public void deveAtualizarProduto() {
@@ -99,6 +107,16 @@ public class ProdutoServiceTest {
 		produtoService.updateProduto(hospital.getObjectId(), newProduto, prodOne.getObjectId());
 
 		assertEquals("Seringa", produtoService.getProduto(hospital.getObjectId(), prodOne.getObjectId()).getNome());
+	}
+	
+	@Test(expected = ProdutoNotFoundException.class)
+	public void naoDeveAtualizarProdutoSeNaoHouver() {
+
+		Mockito.when(hospitalRepository.findBy_id(hospital.getObjectId())).thenReturn(hospital);
+
+		Produto newProduto = new Produto(new ObjectId(), "Seringa", null, 10, null);
+		produtoService.updateProduto(hospital.getObjectId(), newProduto, new ObjectId());
+		
 	}
 
 	@Test(expected = ProdutoNotFoundException.class)
