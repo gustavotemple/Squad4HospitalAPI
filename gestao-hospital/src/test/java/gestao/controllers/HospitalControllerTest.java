@@ -31,7 +31,7 @@ public class HospitalControllerTest extends ApplicationTests{
 	private HospitalController hospitalController;    
 
     @Mock
-    private HospitalRepository hospialRepository;
+    private HospitalRepository hospitalRepository;
 
     private MockMvc mockMvc;
     private Hospital hospital;
@@ -60,7 +60,7 @@ public class HospitalControllerTest extends ApplicationTests{
     @Test
     public void deveBuscarHospial() throws Exception {
         String url = "/v1/hospitais/" + hospital.getObjectId() ;
-        Mockito.when(this.hospialRepository.findBy_id( hospital.getObjectId() )).thenReturn(hospital);
+        Mockito.when(this.hospitalRepository.findBy_id( hospital.getObjectId() )).thenReturn(hospital);
        
         // when        
         MockHttpServletResponse response = mockMvc.perform(get(url)
@@ -75,7 +75,7 @@ public class HospitalControllerTest extends ApplicationTests{
     @Test
     public void deveListarLeitos() throws Exception{
         String url = "/v1/hospitais/" + hospital.getObjectId() + "/leitos" ;
-        Mockito.when(this.hospialRepository.findBy_id( hospital.getObjectId() )).thenReturn(hospital);
+        Mockito.when(this.hospitalRepository.findBy_id( hospital.getObjectId() )).thenReturn(hospital);
        
         // when        
         MockHttpServletResponse response = mockMvc.perform(get(url)
