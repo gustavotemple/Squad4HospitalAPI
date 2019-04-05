@@ -14,9 +14,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 @TypeAlias("Produto")
 @Document(collection = "estoque")
 @JsonIgnoreProperties(ignoreUnknown = true)
+@ApiModel(description = "Produtos e Bolsas de Sangue do Estoque")
 public class Produto extends ResourceSupport implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
@@ -25,10 +29,10 @@ public class Produto extends ResourceSupport implements Serializable {
 		COMUM, SANGUE
 	}
 
-	@Id
-	@JsonProperty(access = Access.READ_ONLY)
+	@Id @JsonProperty(access = Access.READ_ONLY)
 	private ObjectId _id;
 	@NotEmpty(message = "Nome do item de estoque nao preenchido")
+	@ApiModelProperty(notes = "Nome do item de estoque")
 	private String nome;
 	private String descricao = "";
 	private int quantidade;

@@ -23,10 +23,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import gestao.configuration.ApplicationConfig;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 @TypeAlias("Hospital")
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Document(collection = ApplicationConfig.HOSPITAIS)
+@ApiModel(description = "Hospital e seus atributos")
 public class Hospital extends ResourceSupport implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
@@ -35,10 +38,13 @@ public class Hospital extends ResourceSupport implements Serializable {
 	private ObjectId _id;
 	@Indexed(name="nomeHospital", unique=true)
 	@NotEmpty(message = "Nome do hospital nao preenchido")
+	@ApiModelProperty(notes = "Nome do hospital")
 	private String nome;
-	@NotEmpty(message = "Endereco do hospital nao preenchido")	
+	@NotEmpty(message = "Endereco do hospital nao preenchido")
+	@ApiModelProperty(notes = "Endereco do hospital")
 	private String endereco;
 	@NotNull(message = "Leitos totais do hospital nao preenchido")
+	@ApiModelProperty(notes = "Leitos totais do hospital")
 	@DecimalMin(value = "1")
 	private Integer leitosTotais;
 	@JsonIgnore
