@@ -1,0 +1,14 @@
+logging:
+  level:
+    com.acelera.squad.four.hospital.service.GeocodeClient: DEBUG
+
+spring:
+  application:
+    name: HospitalAPI
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      uri: mongodb://localhost/test
+      database: test
+      
