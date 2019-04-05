@@ -24,10 +24,15 @@ public class HospitalService {
 	private static int MIN_LEITOS_DISPONIVEIS = 0;
 	private static int QTD_MIN_PRODUTOS = 4;
 
-	@Autowired
 	private GeocodeClient geocodeClient;
-	@Autowired
 	private HospitalRepository hospitalRepository;
+	
+	@Autowired
+	public HospitalService(GeocodeClient geocodeClient, HospitalRepository hospitalRepository) {
+		super();
+		this.geocodeClient = geocodeClient;
+		this.hospitalRepository = hospitalRepository;
+	}
 
 	public GeoJsonPoint buscaCoordenadasPor(final String endereco) {
 		final Geocode geocode = geocodeClient.buscaCoordenadasPor(endereco, KEY);

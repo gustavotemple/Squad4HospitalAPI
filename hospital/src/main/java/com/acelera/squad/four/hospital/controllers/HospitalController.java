@@ -37,10 +37,14 @@ import io.swagger.annotations.ApiOperation;
 @ExposesResourceFor(Hospital.class)
 public class HospitalController {
 
-	@Autowired
 	private HospitalService hospitalService;
-	@Autowired
 	private HospitalRepository hospitalRepository;
+
+	@Autowired
+	public HospitalController(HospitalService hospitalService, HospitalRepository hospitalRepository) {
+		this.hospitalService = hospitalService;
+		this.hospitalRepository = hospitalRepository;
+	}
 
 	@PostMapping("/hospitais")
 	@ApiOperation(value = "Adiciona um hospital")

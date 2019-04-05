@@ -34,11 +34,15 @@ import io.swagger.annotations.ApiOperation;
 @RequestMapping(path = "/v1")
 @ExposesResourceFor(Paciente.class)
 public class PacienteController {
-	
-	@Autowired
+
 	private PacienteService pacienteService;
-	@Autowired
 	private HospitalService hospitalService;
+
+	@Autowired
+	public PacienteController(PacienteService pacienteService, HospitalService hospitalService) {
+		this.pacienteService = pacienteService;
+		this.hospitalService = hospitalService;
+	}
 
 	@PostMapping("/hospitais/{id}/pacientes")
 	public ResponseEntity<Paciente> addPaciente(@PathVariable ObjectId id, @Valid @RequestBody Paciente novoPaciente) {

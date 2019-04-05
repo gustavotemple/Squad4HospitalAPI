@@ -18,10 +18,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Service
 public class ProdutoService {
 
-	@Autowired
 	private ProdutoRepository produtoRepository;
-	@Autowired
 	private HospitalRepository hospitalRepository;
+	
+	@Autowired
+	public ProdutoService(ProdutoRepository produtoRepository, HospitalRepository hospitalRepository) {
+		this.produtoRepository = produtoRepository;
+		this.hospitalRepository = hospitalRepository;
+	}
 
 	public Produto addProduto(ObjectId hospitalId, Produto produto) {
 		final Produto prod = new Produto();

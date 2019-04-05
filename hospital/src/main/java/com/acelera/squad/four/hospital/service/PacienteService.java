@@ -1,6 +1,5 @@
 package com.acelera.squad.four.hospital.service;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Objects;
@@ -20,12 +19,18 @@ import com.acelera.squad.four.hospital.repositories.PacienteRepository;
 
 @Service
 public class PacienteService {
-	@Autowired
+
 	private PacienteRepository pacienteRepository;
-	@Autowired
 	private HospitalRepository hospitalRepository;
-	@Autowired
 	private LeitoRepository leitoreRepository;
+	
+	@Autowired
+	public PacienteService(PacienteRepository pacienteRepository, HospitalRepository hospitalRepository,
+			LeitoRepository leitoreRepository) {
+		this.pacienteRepository = pacienteRepository;
+		this.hospitalRepository = hospitalRepository;
+		this.leitoreRepository = leitoreRepository;
+	}
 
 	public Paciente addPaciente(ObjectId hospitalId, Paciente novoPaciente) {
 		final Paciente paciente = new Paciente();

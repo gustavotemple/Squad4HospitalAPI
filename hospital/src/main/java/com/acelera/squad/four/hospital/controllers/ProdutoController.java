@@ -31,9 +31,13 @@ import io.swagger.annotations.ApiOperation;
 @RequestMapping(path = "/v1")
 @ExposesResourceFor(Produto.class)
 public class ProdutoController {
-
-	@Autowired
+	
 	private ProdutoService produtoService;
+	
+	@Autowired
+	public ProdutoController(ProdutoService produtoService) {
+		this.produtoService = produtoService;
+	}
 
 	@PostMapping("/hospitais/{id}/estoque")
 	@ApiOperation(value = "Adiciona um produto no estoque de um hospital")
