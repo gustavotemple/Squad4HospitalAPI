@@ -91,7 +91,7 @@ public class ProdutoServiceImpl implements ProdutoService {
 	}
 
 	private Hospital findHospitalBy(ObjectId hospitalId) {
-		final Hospital hospital = hospitalRepository.findBy_id(hospitalId);
+		final Hospital hospital = hospitalRepository.findOne(hospitalId);
 		if (Objects.isNull(hospital))
 			throw new HospitalNotFoundException(hospitalId);
 		return hospital;

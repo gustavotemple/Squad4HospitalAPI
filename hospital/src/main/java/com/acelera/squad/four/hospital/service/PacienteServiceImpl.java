@@ -107,7 +107,7 @@ public class PacienteServiceImpl implements PacienteService {
 
 	@Override
 	public void checkout(ObjectId hospitalId, ObjectId pacienteId) {
-		Hospital hospital = hospitalRepository.findBy_id(hospitalId);
+		Hospital hospital = hospitalRepository.findOne(hospitalId);
 
 		if (Objects.isNull(hospital))
 			throw new HospitalNotFoundException(hospitalId);
@@ -124,7 +124,7 @@ public class PacienteServiceImpl implements PacienteService {
 	}
 
 	private Hospital findHospitalBy(ObjectId hospitalId) {
-		final Hospital hospital = hospitalRepository.findBy_id(hospitalId);
+		final Hospital hospital = hospitalRepository.findOne(hospitalId);
 		if (Objects.isNull(hospital))
 			throw new HospitalNotFoundException(hospitalId);
 		return hospital;
