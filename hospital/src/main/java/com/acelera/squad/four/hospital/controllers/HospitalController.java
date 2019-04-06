@@ -108,7 +108,7 @@ public class HospitalController {
 
 	@DeleteMapping("/hospitais/{id}")
 	@ApiOperation(value = "Exclui um hospital")
-	public ResponseEntity<String> deleteHospital(@PathVariable String id) {
+	public ResponseEntity<String> deleteHospital(@PathVariable ObjectId id) {
 		if (!hospitalRepository.exists(id))
 			throw new HospitalNotFoundException(id);
 
