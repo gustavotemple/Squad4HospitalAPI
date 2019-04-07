@@ -54,12 +54,12 @@ public class ProdutoController {
 	@GetMapping("/{produto}")
 	@ApiOperation(value = "Retorna mais detalhes de um produto")
 	public ResponseEntity<Produto> getProduto(@PathVariable("id") ObjectId hospitalId,
-			@PathVariable("produto") ObjectId produto) {
-		final Produto prod = produtoService.getProduto(hospitalId, produto);
+			@PathVariable("produto") ObjectId produtoId) {
+		final Produto produto = produtoService.getProduto(hospitalId, produtoId);
 
-		prod.add(linkTo(methodOn(ProdutoController.class).getProduto(hospitalId, prod.getObjectId())).withSelfRel());
+		produto.add(linkTo(methodOn(ProdutoController.class).getProduto(hospitalId, produto.getObjectId())).withSelfRel());
 
-		return ResponseEntity.ok(prod);
+		return ResponseEntity.ok(produto);
 	}
 
 	@GetMapping
@@ -72,11 +72,11 @@ public class ProdutoController {
 	@ApiOperation(value = "Atualiza um produto")
 	public ResponseEntity<Produto> updateProduto(@PathVariable("id") ObjectId hospitalId,
 			@Valid @RequestBody Produto produtoUpdate, @PathVariable("produto") ObjectId produtoId) {
-		final Produto prod = produtoService.updateProduto(hospitalId, produtoUpdate, produtoId);
+		final Produto produto = produtoService.updateProduto(hospitalId, produtoUpdate, produtoId);
 
-		prod.add(linkTo(methodOn(ProdutoController.class).getProduto(hospitalId, prod.getObjectId())).withSelfRel());
+		produto.add(linkTo(methodOn(ProdutoController.class).getProduto(hospitalId, produto.getObjectId())).withSelfRel());
 
-		return ResponseEntity.ok(prod);
+		return ResponseEntity.ok(produto);
 	}
 
 	@DeleteMapping("/{produto}")

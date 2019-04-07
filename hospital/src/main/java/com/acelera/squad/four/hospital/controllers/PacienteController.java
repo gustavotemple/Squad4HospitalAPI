@@ -55,12 +55,12 @@ public class PacienteController {
 	@GetMapping("/{paciente}")
 	@ApiOperation(value = "Retorna todas as informacoes do paciente cadastrado")
 	public ResponseEntity<Paciente> getPaciente(@PathVariable("id") ObjectId hospitalId,
-			@PathVariable("paciente") ObjectId paciente) {
-		final Paciente p = pacienteService.getPaciente(hospitalId, paciente);
+			@PathVariable("paciente") ObjectId pacienteId) {
+		final Paciente paciente = pacienteService.getPaciente(hospitalId, pacienteId);
 
-		p.add(linkTo(methodOn(PacienteController.class).getPaciente(hospitalId, p.getObjectId())).withSelfRel());
+		paciente.add(linkTo(methodOn(PacienteController.class).getPaciente(hospitalId, paciente.getObjectId())).withSelfRel());
 
-		return ResponseEntity.ok().body(p);
+		return ResponseEntity.ok().body(paciente);
 	}
 
 	@GetMapping
