@@ -19,10 +19,9 @@ public class HospitalDTO {
 	@ApiModelProperty(notes = "Endereco do hospital")
 	@NotBlank(message = "Endereco do hospital nao preenchido")
 	private String endereco;
-	@DecimalMin(value = "1")
+	@DecimalMin(value = "1", message = "O hospital deve ter no minimo um leito")
 	@ApiModelProperty(notes = "Leitos totais do hospital")
-	@NotBlank(message = "Leitos totais do hospital nao preenchido")
-	private Integer leitosTotais;
+	private int leitosTotais;
 
 	public HospitalDTO(String nome, String endereco, Integer leitosTotais) {
 		this.nome = nome;
@@ -51,6 +50,10 @@ public class HospitalDTO {
 
 	public int getLeitosTotais() {
 		return leitosTotais;
+	}
+
+	public void setLeitosTotais(int leitosTotais) {
+		this.leitosTotais = leitosTotais;
 	}
 
 	public Hospital toHospital() {
