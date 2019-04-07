@@ -43,7 +43,7 @@ public class Hospital extends ResourceSupport implements Serializable {
 	private String endereco;
 	@ApiModelProperty(notes = "Leitos totais do hospital")
 	private Integer leitosTotais;
-	@ApiModelProperty(notes = "Localizacao do hospital")
+	@JsonIgnore @ApiModelProperty(notes = "Localizacao do hospital")
 	private GeoJsonPoint localizacao;
 	@DBRef @ApiModelProperty(notes = "Pacientes do hospital")
 	private Collection<Paciente> pacientes = new ArrayList<Paciente>();

@@ -29,13 +29,14 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
 @EnableSwagger2
-@ComponentScan(basePackages = { "com.acelera.squad.four.hospital", "controllers", "service" })
+@ComponentScan(basePackages = { ApplicationConfig.BASE_PACKAGE, "controllers", "service" })
 @EnableAutoConfiguration(exclude = { DataSourceAutoConfiguration.class })
-@EnableMongoRepositories({ "com.acelera.squad.four.hospital.repositories" })
+@EnableMongoRepositories({ ApplicationConfig.BASE_PACKAGE + ".repositories" })
 public class ApplicationConfig {
 
 	public static final String HOSPITAIS = "hospitais";
 	public static final String BASE_URL = "/v1/" + HOSPITAIS;
+	public static final String BASE_PACKAGE = "com.acelera.squad.four.hospital";
 
 	@Bean
 	public RestTemplate restTemplate(RestTemplateBuilder builder) {
@@ -64,7 +65,7 @@ public class ApplicationConfig {
 	@Bean
 	public Docket api() {
 		return new Docket(DocumentationType.SWAGGER_2).select()
-				.apis(RequestHandlerSelectors.basePackage("com.acelera.squad.four.hospital")).paths(PathSelectors.any())
+				.apis(RequestHandlerSelectors.basePackage(BASE_PACKAGE)).paths(PathSelectors.any())
 				.paths(Predicates.not(PathSelectors.regex("/error.*"))).build().apiInfo(apiInfo());
 	}
 

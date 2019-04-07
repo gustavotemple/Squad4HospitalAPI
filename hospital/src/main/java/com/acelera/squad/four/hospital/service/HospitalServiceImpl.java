@@ -2,6 +2,7 @@ package com.acelera.squad.four.hospital.service;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -74,13 +75,22 @@ public class HospitalServiceImpl implements HospitalService {
 	 */
 	@Override
 	public Hospital getHospitalNearById(ObjectId id) {
-		final Hospital hospital = getHospitalById(id);
+		Hospital hospital = getHospitalById(id);
 
 		final Point point = buscaCoordenadasPor(hospital.getEndereco());
 
 		final List<Hospital> hospitals = hospitalRepository.findByLocalizacaoNear(point);
 
-		return hospitals.stream().filter(produtosDisponiveis()).skip(1).findFirst().get();
+		if (hospitals.isEmpty())
+			throw new HospitalNotFoundException();
+
+		try {
+			hospital = hospitals.stream().filter(produtosDisponiveis()).skip(1).findFirst().get();
+		} catch (NoSuchElementException e) {
+			throw new HospitalNotFoundException();
+		}
+
+		return hospital;
 	}
 
 	private Predicate<Hospital> produtosDisponiveis() {
