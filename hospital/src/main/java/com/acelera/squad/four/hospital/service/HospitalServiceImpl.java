@@ -1,9 +1,11 @@
 package com.acelera.squad.four.hospital.service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.netflix.feign.EnableFeignClients;
 import org.springframework.data.geo.Point;
@@ -11,7 +13,10 @@ import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.stereotype.Service;
 
 import com.acelera.squad.four.hospital.exceptions.BadEnderecoException;
+import com.acelera.squad.four.hospital.exceptions.HospitalNotFoundException;
 import com.acelera.squad.four.hospital.models.Hospital;
+import com.acelera.squad.four.hospital.models.HospitalDTO;
+import com.acelera.squad.four.hospital.models.Leito;
 import com.acelera.squad.four.hospital.models.geocode.Geocode;
 import com.acelera.squad.four.hospital.repositories.HospitalRepository;
 
@@ -26,19 +31,23 @@ public class HospitalServiceImpl implements HospitalService {
 
 	private GeocodeClient geocodeClient;
 	private HospitalRepository hospitalRepository;
-	
+
 	@Autowired
 	public HospitalServiceImpl(GeocodeClient geocodeClient, HospitalRepository hospitalRepository) {
-		super();
 		this.geocodeClient = geocodeClient;
 		this.hospitalRepository = hospitalRepository;
 	}
 
-	@Override
-	public GeoJsonPoint buscaCoordenadasPor(final String endereco) {
+	/**
+	 * buscaCoordenadasPor
+	 * 
+	 * @param endereco String
+	 * @return GeoJsonPoint
+	 */
+	private GeoJsonPoint buscaCoordenadasPor(final String endereco) {
 		final Geocode geocode = geocodeClient.buscaCoordenadasPor(endereco, KEY);
-		
-		if(geocode.getResults().isEmpty())
+
+		if (geocode.getResults().isEmpty())
 			throw new BadEnderecoException();
 
 		final GeoJsonPoint point = new GeoJsonPoint(geocode.getResults().get(0).getGeometry().getLocation().getLng(),
@@ -47,22 +56,36 @@ public class HospitalServiceImpl implements HospitalService {
 		return point;
 	}
 
+	@Override
+	public Hospital addHospital(HospitalDTO hospitalDTO) {
+		final Hospital hospital = hospitalDTO.toHospital();
+
+		hospital.setLocalizacao(buscaCoordenadasPor(hospital.getEndereco()));
+
+		return hospitalRepository.save(hospital);
+	}
+
 	/**
 	 * Caso o hospital precise de um produto, por exemplo, um banco de sangue, eh
 	 * importante fazer o envio do hospital mais proximo ao local.
 	 * 
-	 * @param endereco do hospital
+	 * @param id do hospital solicitante
 	 * @return Hospital
 	 */
 	@Override
-	public Hospital hospitalMaisProximoHospital(final Hospital hospital) {
+	public Hospital getHospitalNearById(ObjectId id) {
+		final Hospital hospital = getHospitalById(id);
+
 		final Point point = buscaCoordenadasPor(hospital.getEndereco());
 
 		final List<Hospital> hospitals = hospitalRepository.findByLocalizacaoNear(point);
-			
-		return hospitals.stream()
-				.filter(produtosDisponiveis())
-				.skip(1).findFirst().get();
+
+		return hospitals.stream().filter(produtosDisponiveis()).skip(1).findFirst().get();
+	}
+
+	private Predicate<Hospital> produtosDisponiveis() {
+		return hospital -> hospital.getEstoque().stream().allMatch(prod -> prod.getQuantidade() > QTD_MIN_PRODUTOS)
+				&& !hospital.getEstoque().isEmpty();
 	}
 
 	/**
@@ -73,29 +96,62 @@ public class HospitalServiceImpl implements HospitalService {
 	 * @return Hospital
 	 */
 	@Override
-	public Hospital hospitalMaisProximoPaciente(final String endereco) {
+	public Hospital getHospitalNearByAddress(String endereco) {
 		Point point;
 
 		if (!Objects.isNull(endereco))
-			point = buscaCoordenadasPor(endereco);		
+			point = buscaCoordenadasPor(endereco);
 		else
 			throw new BadEnderecoException();
 
 		List<Hospital> hospitals = hospitalRepository.findByLocalizacaoNear(point);
 
-		return hospitals.stream().filter(leitosEProdutosDisponiveis())
-				.findFirst().get();			
+		return hospitals.stream().filter(leitosEProdutosDisponiveis()).findFirst().get();
 	}
-	
-	private Predicate<Hospital> leitosEProdutosDisponiveis(){
-		return hospital -> hospital.getLeitosDisponiveis() > MIN_LEITOS_DISPONIVEIS && 
-				hospital.getEstoque().stream().allMatch(prod -> prod.getQuantidade() > QTD_MIN_PRODUTOS) &&
-				!hospital.getEstoque().isEmpty();
+
+	private Predicate<Hospital> leitosEProdutosDisponiveis() {
+		return hospital -> hospital.getLeitosDisponiveis() > MIN_LEITOS_DISPONIVEIS
+				&& hospital.getEstoque().stream().allMatch(prod -> prod.getQuantidade() > QTD_MIN_PRODUTOS)
+				&& !hospital.getEstoque().isEmpty();
 	}
-	
-	private Predicate<Hospital> produtosDisponiveis(){
-		return hospital -> hospital.getEstoque().stream().allMatch(prod -> prod.getQuantidade() > QTD_MIN_PRODUTOS) &&
-				!hospital.getEstoque().isEmpty();
+
+	@Override
+	public Hospital getHospitalById(ObjectId hospitalId) {
+		final Hospital hospital = hospitalRepository.findOne(hospitalId);
+		if (Objects.isNull(hospital))
+			throw new HospitalNotFoundException(hospitalId);
+		return hospital;
+	}
+
+	@Override
+	public Hospital updateHospital(ObjectId hospitalId, HospitalDTO hospitalDTO) {
+		final Hospital hospital = getHospitalById(hospitalId);
+
+		hospital.setEndereco(hospitalDTO.getEndereco());
+		hospital.setNome(hospitalDTO.getNome());
+		hospital.setLeitosTotais(hospitalDTO.getLeitosTotais());
+
+		return hospitalRepository.save(hospital);
+	}
+
+	@Override
+	public Collection<Leito> getLeitosById(ObjectId hospitalId) {
+		final Hospital hospital = getHospitalById(hospitalId);
+
+		return hospital.getLeitos();
+	}
+
+	@Override
+	public void deleteHospital(ObjectId hospitalId) {
+		if (!hospitalRepository.exists(hospitalId))
+			throw new HospitalNotFoundException(hospitalId);
+
+		hospitalRepository.delete(hospitalId);
+	}
+
+	@Override
+	public Collection<Hospital> findAll() {
+		return hospitalRepository.findAll();
 	}
 
 }

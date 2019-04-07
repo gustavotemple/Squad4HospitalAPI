@@ -22,14 +22,14 @@ public class PacienteServiceImpl implements PacienteService {
 
 	private PacienteRepository pacienteRepository;
 	private HospitalRepository hospitalRepository;
-	private LeitoRepository leitoreRepository;
-	
+	private LeitoRepository leitorRepository;
+
 	@Autowired
 	public PacienteServiceImpl(PacienteRepository pacienteRepository, HospitalRepository hospitalRepository,
 			LeitoRepository leitoreRepository) {
 		this.pacienteRepository = pacienteRepository;
 		this.hospitalRepository = hospitalRepository;
-		this.leitoreRepository = leitoreRepository;
+		this.leitorRepository = leitoreRepository;
 	}
 
 	@Override
@@ -50,7 +50,7 @@ public class PacienteServiceImpl implements PacienteService {
 	@Override
 	public Paciente getPaciente(ObjectId hospitalId, ObjectId pacienteId) {
 		final Paciente paciente = findPacienteBy(findHospitalBy(hospitalId), pacienteId);
-		
+
 		return new Paciente().build(paciente);
 	}
 
@@ -71,10 +71,10 @@ public class PacienteServiceImpl implements PacienteService {
 		final Hospital hospital = findHospitalBy(hospitalId);
 
 		final Paciente paciente = findPacienteBy(hospital, pacienteId);
-		
+
 		hospital.getPacientes().remove(paciente);
 		hospitalRepository.save(hospital);
-		
+
 		pacienteRepository.delete(pacienteId);
 	}
 
@@ -92,14 +92,14 @@ public class PacienteServiceImpl implements PacienteService {
 		Date checkin = new Date();
 		Leito leito = new Leito(pacienteId, checkin, null);
 		hospital.addLeito(leito);
-		
-		leitoreRepository.save(leito);
+
+		leitorRepository.save(leito);
 		hospitalRepository.save(hospital);
 	}
 
 	private Paciente findPacienteBy(Hospital hospital, ObjectId pacienteId) {
-		final Paciente paciente = hospital.getPacientes().stream().filter(p -> pacienteId.equals(p.getObjectId())).findFirst()
-				.orElse(null);
+		final Paciente paciente = hospital.getPacientes().stream().filter(p -> pacienteId.equals(p.getObjectId()))
+				.findFirst().orElse(null);
 		if (Objects.isNull(paciente))
 			throw new PacienteNotFoundException(pacienteId);
 		return paciente;
@@ -112,14 +112,16 @@ public class PacienteServiceImpl implements PacienteService {
 		if (Objects.isNull(hospital))
 			throw new HospitalNotFoundException(hospitalId);
 
-		Date checkout = new Date();
-
 		Collection<Leito> leitos = hospital.getLeitos();
-		Leito leito = leitos.stream().filter(o -> o.getPacienteId().equals(pacienteId)).findFirst().get();
-		leito.setCheckout(checkout);
-		
-		hospital.removeLeito(leito);		
-		leitoreRepository.save(leito);
+		Leito leito = leitos.stream().filter(l -> l.getPacienteId().equals(pacienteId)).findFirst().orElse(null);
+
+		if (Objects.isNull(leito))
+			throw new PacienteNotFoundException(pacienteId);
+
+		leito.setCheckout(new Date());
+
+		hospital.removeLeito(leito);
+		leitorRepository.save(leito);
 		hospitalRepository.save(hospital);
 	}
 

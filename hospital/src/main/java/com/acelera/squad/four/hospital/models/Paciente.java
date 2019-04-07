@@ -1,6 +1,7 @@
 package com.acelera.squad.four.hospital.models;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.bson.types.ObjectId;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -12,12 +13,19 @@ import org.springframework.hateoas.ResourceSupport;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 @TypeAlias("Paciente")
 @Document(collection = "pacientes")
+@JsonInclude(Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
+@ApiModel(description = "Paciente e seus atributos")
 public class Paciente extends ResourceSupport implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
@@ -29,18 +37,19 @@ public class Paciente extends ResourceSupport implements Serializable {
 	@Id @JsonProperty(access = Access.READ_ONLY)
 	private ObjectId _id;
 	@NotEmpty(message = "Nome do paciente nao preenchido")
+	@ApiModelProperty(notes = "Nome do paciente")
 	private String nome;
 	@Indexed(name="cpfPaciente", unique=true)
-	@NotEmpty(message = "CPF do paciente nao preenchido")	
+	@NotEmpty(message = "CPF do paciente nao preenchido")
+	@ApiModelProperty(notes = "CPF do paciente")
 	private String cpf;
+	@JsonInclude(Include.NON_NULL)
 	private Paciente.Type sexo;
 
 	public Paciente() {
 	}
 
-	public Paciente(ObjectId _id, String nome, String cpf, Paciente.Type sexo) {
-		super();
-		this._id = _id;
+	public Paciente(String nome, String cpf, Paciente.Type sexo) {
 		this.nome = nome;
 		this.cpf = cpf;
 		this.sexo = sexo;
@@ -58,7 +67,8 @@ public class Paciente extends ResourceSupport implements Serializable {
 
 	@JsonIgnore
 	public void set_id(ObjectId _id) {
-		this._id = _id;
+		if (Objects.isNull(this._id))
+			this._id = _id;
 	}
 
 	public String getNome() {
@@ -88,7 +98,6 @@ public class Paciente extends ResourceSupport implements Serializable {
 	public Paciente build(Paciente novoPaciente) {
 		this._id = novoPaciente.getObjectId();
 		this.nome = novoPaciente.getNome();
-
 		this.cpf = novoPaciente.getCpf();
 		this.sexo = novoPaciente.getSexo();
 		return this;

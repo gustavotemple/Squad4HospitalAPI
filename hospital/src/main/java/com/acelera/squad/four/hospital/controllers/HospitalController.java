@@ -4,7 +4,6 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import java.util.Collection;
-import java.util.Objects;
 
 import javax.validation.Valid;
 
@@ -19,13 +18,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.acelera.squad.four.hospital.configuration.ApplicationConfig;
-import com.acelera.squad.four.hospital.exceptions.HospitalNotFoundException;
 import com.acelera.squad.four.hospital.models.Hospital;
+import com.acelera.squad.four.hospital.models.HospitalDTO;
 import com.acelera.squad.four.hospital.models.Leito;
-import com.acelera.squad.four.hospital.repositories.HospitalRepository;
 import com.acelera.squad.four.hospital.service.HospitalService;
 
 import io.swagger.annotations.Api;
@@ -33,100 +32,87 @@ import io.swagger.annotations.ApiOperation;
 
 @RestController
 @Api(value = ApplicationConfig.HOSPITAIS)
-@RequestMapping(path = "/v1")
+@RequestMapping(path = ApplicationConfig.BASE_URL)
 @ExposesResourceFor(Hospital.class)
 public class HospitalController {
 
 	private HospitalService hospitalService;
-	private HospitalRepository hospitalRepository;
 
 	@Autowired
-	public HospitalController(HospitalService hospitalService, HospitalRepository hospitalRepository) {
+	public HospitalController(HospitalService hospitalService) {
 		this.hospitalService = hospitalService;
-		this.hospitalRepository = hospitalRepository;
 	}
 
-	@PostMapping("/hospitais")
+	@PostMapping
 	@ApiOperation(value = "Adiciona um hospital")
-	public ResponseEntity<Hospital> addHospital(@Valid @RequestBody Hospital hospital) {	
-		hospital.setLocalizacao(hospitalService.buscaCoordenadasPor(hospital.getEndereco()));
-
-		hospitalRepository.save(hospital);
+	public ResponseEntity<Hospital> addHospital(@Valid @RequestBody HospitalDTO hospitalDTO) {
+		final Hospital hospital = hospitalService.addHospital(hospitalDTO);
 
 		hospital.add(linkTo(methodOn(HospitalController.class).getHospitalById(hospital.getObjectId())).withSelfRel());
 
 		return ResponseEntity.ok().body(hospital);
 	}
 
-	@GetMapping("/hospitais/near/{id}")
+	@GetMapping("/near/{hospital}")
 	@ApiOperation(value = "Retorna o hospital mais proximo com estoque disponivel")
-	public ResponseEntity<Hospital> getHospitalByLocation(@PathVariable ObjectId id) {		
-		final Hospital hospital = findHospitalBy(id);
-		
-		final Hospital hospitalMaisProximo = hospitalService.hospitalMaisProximoHospital(hospital);
-		
-		hospitalMaisProximo.add(linkTo(methodOn(HospitalController.class).getHospitalById(hospital.getObjectId())).withSelfRel());
-		
-		return ResponseEntity.ok().body(hospitalMaisProximo);
+	public ResponseEntity<Hospital> getHospitalNearById(@PathVariable("hospital") ObjectId hospitalId) {
+		final Hospital hospital = hospitalService.getHospitalNearById(hospitalId);
+
+		hospital.add(linkTo(methodOn(HospitalController.class).getHospitalById(hospital.getObjectId())).withSelfRel());
+
+		return ResponseEntity.ok().body(hospital);
 	}
 
-	@GetMapping("/hospitais/{id}")
+	@GetMapping("/near/paciente")
+	@ApiOperation(value = "Retorna o hospital mais proximo com leitos disponiveis")
+	public ResponseEntity<Hospital> getHospitalNearByAddress(
+			@RequestParam(value = "endereco", required = true) String endereco) {
+		final Hospital hospital = hospitalService.getHospitalNearByAddress(endereco);
+
+		hospital.add(linkTo(methodOn(HospitalController.class).getHospitalById(hospital.getObjectId())).withSelfRel());
+
+		return ResponseEntity.ok().body(hospital);
+	}
+
+	@GetMapping("/{id}")
 	@ApiOperation(value = "Retorna um hospital")
-	public ResponseEntity<Hospital> getHospitalById(@PathVariable ObjectId id) {
-		final Hospital hospital = findHospitalBy(id);
+	public ResponseEntity<Hospital> getHospitalById(@PathVariable("id") ObjectId hospitalId) {
+		final Hospital hospital = hospitalService.getHospitalById(hospitalId);
 
 		hospital.add(linkTo(methodOn(HospitalController.class).getHospitalById(hospital.getObjectId())).withSelfRel());
 
 		return ResponseEntity.ok().body(hospital);
 	}
-	
-	@PutMapping("/hospitais/{id}")
+
+	@PutMapping("/{id}")
 	@ApiOperation(value = "Atualiza um hospital")
-	public ResponseEntity<Hospital> updateHospital(@PathVariable ObjectId id, @Valid @RequestBody Hospital h) {
-		final Hospital hospital = findHospitalBy(id);
-		
-		hospital.setEndereco(h.getEndereco());
-		hospital.setNome(h.getNome());
-		hospital.setLeitosTotais(h.getLeitosTotais());
-		
-		hospitalRepository.save(hospital);
+	public ResponseEntity<Hospital> updateHospital(@PathVariable("id") ObjectId hospitalId,
+			@Valid @RequestBody HospitalDTO hospitalDTO) {
+		final Hospital hospital = hospitalService.updateHospital(hospitalId, hospitalDTO);
 
 		hospital.add(linkTo(methodOn(HospitalController.class).getHospitalById(hospital.getObjectId())).withSelfRel());
 
 		return ResponseEntity.ok().body(hospital);
 	}
 
-	@GetMapping("/hospitais/{id}/leitos")
+	@GetMapping("/{id}/leitos")
 	@ApiOperation(value = "Retorna os leitos de um hospital")
-	public ResponseEntity<Collection<Leito>> getLeitosById(@PathVariable ObjectId id) {
-		final Hospital hospital = findHospitalBy(id);
-		
-		Collection<Leito> leitos = hospital.getLeitos();
-
-		return ResponseEntity.ok().body(leitos);
+	public ResponseEntity<Collection<Leito>> getLeitosById(@PathVariable("id") ObjectId hospitalId) {
+		return ResponseEntity.ok().body(hospitalService.getLeitosById(hospitalId));
 	}
 
-	@DeleteMapping("/hospitais/{id}")
+	@DeleteMapping("/{id}")
 	@ApiOperation(value = "Exclui um hospital")
-	public ResponseEntity<String> deleteHospital(@PathVariable ObjectId id) {
-		if (!hospitalRepository.exists(id))
-			throw new HospitalNotFoundException(id);
+	public ResponseEntity<String> deleteHospital(@PathVariable("id") ObjectId hospitalId) {
+		hospitalService.deleteHospital(hospitalId);
 
-		hospitalRepository.delete(id);
-		return ResponseEntity.ok().body("Hospital " + id + " apagado.");
+		return ResponseEntity.ok().body("Hospital " + hospitalId + " apagado.");
 	}
-	
-	@GetMapping("/hospitais")
+
+	@GetMapping
 	@ApiOperation(value = "Retorna todos hospitais")
 	public ResponseEntity<Collection<Hospital>> listarHospitais() {
-		return ResponseEntity.ok().body(hospitalRepository.findAll());
-	}
-
-	private Hospital findHospitalBy(ObjectId hospitalId) {
-		final Hospital hospital = hospitalRepository.findOne(hospitalId);
-		if (Objects.isNull(hospital))
-			throw new HospitalNotFoundException(hospitalId);
-		return hospital;
+		return ResponseEntity.ok().body(hospitalService.findAll());
 	}
 
 }

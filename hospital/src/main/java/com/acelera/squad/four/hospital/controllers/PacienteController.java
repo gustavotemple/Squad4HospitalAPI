@@ -18,12 +18,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.acelera.squad.four.hospital.models.Hospital;
+import com.acelera.squad.four.hospital.configuration.ApplicationConfig;
 import com.acelera.squad.four.hospital.models.Paciente;
-import com.acelera.squad.four.hospital.service.HospitalService;
 import com.acelera.squad.four.hospital.service.PacienteService;
 
 import io.swagger.annotations.Api;
@@ -31,84 +29,82 @@ import io.swagger.annotations.ApiOperation;
 
 @RestController
 @Api(value = "pacientes")
-@RequestMapping(path = "/v1")
+@RequestMapping(path = ApplicationConfig.BASE_URL + "/{id}/pacientes")
 @ExposesResourceFor(Paciente.class)
 public class PacienteController {
 
 	private PacienteService pacienteService;
-	private HospitalService hospitalService;
 
 	@Autowired
-	public PacienteController(PacienteService pacienteService, HospitalService hospitalService) {
+	public PacienteController(PacienteService pacienteService) {
 		this.pacienteService = pacienteService;
-		this.hospitalService = hospitalService;
 	}
 
-	@PostMapping("/hospitais/{id}/pacientes")
-	public ResponseEntity<Paciente> addPaciente(@PathVariable ObjectId id, @Valid @RequestBody Paciente novoPaciente) {
-		final Paciente paciente = pacienteService.addPaciente(id, novoPaciente);
-		
-		paciente.add(linkTo(methodOn(PacienteController.class).getPaciente(id, paciente.getObjectId())).withSelfRel());
-		
+	@PostMapping
+	@ApiOperation(value = "Adiciona um paciente em um hospital")
+	public ResponseEntity<Paciente> addPaciente(@PathVariable("id") ObjectId hospitalId,
+			@Valid @RequestBody Paciente novoPaciente) {
+		final Paciente paciente = pacienteService.addPaciente(hospitalId, novoPaciente);
+
+		paciente.add(linkTo(methodOn(PacienteController.class).getPaciente(hospitalId, paciente.getObjectId()))
+				.withSelfRel());
+
 		return ResponseEntity.ok(paciente);
 	}
-	
-	@GetMapping("/hospitais/pacientes/near")
-	@ApiOperation(value = "Retorna o hospital mais proximo com leitos disponiveis")
-	public ResponseEntity<Hospital> getHospitalsByLocation(
-			@RequestParam(value = "endereco", required = true) String endereco) {
-		final Hospital hospital = hospitalService.hospitalMaisProximoPaciente(endereco);
-		
-		hospital.add(linkTo(methodOn(HospitalController.class).getHospitalById(hospital.getObjectId())).withSelfRel());
-		
-		return ResponseEntity.ok().body(hospital);
-	}
 
-	@GetMapping("/hospitais/{id}/pacientes/{paciente}")
+	@GetMapping("/{paciente}")
 	@ApiOperation(value = "Retorna todas as informacoes do paciente cadastrado")
-	public ResponseEntity<Paciente> getPaciente(@PathVariable ObjectId id, @PathVariable ObjectId paciente) {
-		final Paciente p = pacienteService.getPaciente(id, paciente);
-		
-		p.add(linkTo(methodOn(PacienteController.class).getPaciente(id, p.getObjectId())).withSelfRel());
-		
+	public ResponseEntity<Paciente> getPaciente(@PathVariable("id") ObjectId hospitalId,
+			@PathVariable("paciente") ObjectId paciente) {
+		final Paciente p = pacienteService.getPaciente(hospitalId, paciente);
+
+		p.add(linkTo(methodOn(PacienteController.class).getPaciente(hospitalId, p.getObjectId())).withSelfRel());
+
 		return ResponseEntity.ok().body(p);
 	}
 
-	@GetMapping("/hospitais/{id}/pacientes")
+	@GetMapping
 	@ApiOperation(value = "Retorna os pacientes dentro do hospital")
-	public ResponseEntity<Collection<Paciente>> listarPacientes(@PathVariable ObjectId id) {
-		return ResponseEntity.ok().body(pacienteService.findAll(id));
+	public ResponseEntity<Collection<Paciente>> listarPacientes(@PathVariable("id") ObjectId hospitalId) {
+		return ResponseEntity.ok().body(pacienteService.findAll(hospitalId));
 	}
 
-	@PutMapping("/hospitais/{id}/pacientes/{paciente}")
+	@PutMapping("/{paciente}")
 	@ApiOperation(value = "Atualiza um paciente")
-	public ResponseEntity<Paciente> updatePaciente(@PathVariable ObjectId id, @Valid @RequestBody Paciente pacienteUpdate, @PathVariable ObjectId paciente) {
-		final Paciente p = pacienteService.updatePaciente(id, pacienteUpdate, paciente);
-		
-		p.add(linkTo(methodOn(PacienteController.class).getPaciente(id, p.getObjectId())).withSelfRel());
-		
-		return ResponseEntity.ok().body(p);
+	public ResponseEntity<Paciente> updatePaciente(@PathVariable("id") ObjectId hospitalId,
+			@Valid @RequestBody Paciente pacienteUpdate, @PathVariable("paciente") ObjectId pacienteId) {
+		final Paciente paciente = pacienteService.updatePaciente(hospitalId, pacienteUpdate, pacienteId);
+
+		paciente.add(linkTo(methodOn(PacienteController.class).getPaciente(hospitalId, paciente.getObjectId()))
+				.withSelfRel());
+
+		return ResponseEntity.ok().body(paciente);
 	}
 
-	@DeleteMapping("/hospitais/{id}/pacientes/{paciente}")
+	@DeleteMapping("/{paciente}")
 	@ApiOperation(value = "Exclui um paciente")
-	public ResponseEntity<String> deletePaciente(@PathVariable ObjectId id, @PathVariable ObjectId paciente) {
-		pacienteService.deletePaciente(id, paciente);
+	public ResponseEntity<String> deletePaciente(@PathVariable("id") ObjectId hospitalId,
+			@PathVariable("paciente") ObjectId pacienteId) {
+		pacienteService.deletePaciente(hospitalId, pacienteId);
 
-		return ResponseEntity.ok().body("Paciente " + id + " apagado.");
+		return ResponseEntity.ok().body("Paciente " + pacienteId + " apagado.");
 	}
 
-	@PostMapping("/hospitais/{id}/pacientes/{paciente}/checkin")
-	public ResponseEntity<String> checkin(@PathVariable ObjectId id, @PathVariable ObjectId paciente) {
-		pacienteService.checkin(id, paciente);
-		
+	@PostMapping("/{paciente}/checkin")
+	@ApiOperation(value = "Realiza o checkin de um paciente")
+	public ResponseEntity<String> checkin(@PathVariable("id") ObjectId hospitalId,
+			@PathVariable("paciente") ObjectId pacienteId) {
+		pacienteService.checkin(hospitalId, pacienteId);
+
 		return ResponseEntity.ok().body("Checkin feito com sucesso");
 	}
-	
-	@PostMapping("/hospitais/{id}/pacientes/{paciente}/checkout")
-	public ResponseEntity<String> postCheckout(@PathVariable ObjectId id, @PathVariable ObjectId paciente) {
-		pacienteService.checkout(id, paciente);
-		
+
+	@PostMapping("/{paciente}/checkout")
+	@ApiOperation(value = "Realiza o checkout de um paciente")
+	public ResponseEntity<String> postCheckout(@PathVariable("id") ObjectId hospitalId,
+			@PathVariable("paciente") ObjectId pacienteId) {
+		pacienteService.checkout(hospitalId, pacienteId);
+
 		return ResponseEntity.ok().body("Checkout feito com sucesso");
 	}
 }
