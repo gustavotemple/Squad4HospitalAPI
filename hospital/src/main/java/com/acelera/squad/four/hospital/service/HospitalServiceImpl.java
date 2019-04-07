@@ -116,7 +116,17 @@ public class HospitalServiceImpl implements HospitalService {
 
 		List<Hospital> hospitals = hospitalRepository.findByLocalizacaoNear(point);
 
-		return hospitals.stream().filter(leitosEProdutosDisponiveis()).findFirst().get();
+		if (hospitals.isEmpty())
+			throw new HospitalNotFoundException();
+
+		Hospital hospital;
+		try {
+			hospital = hospitals.stream().filter(leitosEProdutosDisponiveis()).findFirst().get();
+		} catch (NoSuchElementException e) {
+			throw new HospitalNotFoundException();
+		}
+
+		return hospital;
 	}
 
 	private Predicate<Hospital> leitosEProdutosDisponiveis() {
