@@ -107,13 +107,13 @@ public class PacienteServiceImpl implements PacienteService {
 
 	@Override
 	public void checkout(ObjectId hospitalId, ObjectId pacienteId) {
-		Hospital hospital = hospitalRepository.findOne(hospitalId);
+		final Hospital hospital = findHospitalBy(hospitalId);
 
 		if (Objects.isNull(hospital))
 			throw new HospitalNotFoundException(hospitalId);
 
 		Collection<Leito> leitos = hospital.getLeitos();
-		Leito leito = leitos.stream().filter(l -> l.getPacienteId().equals(pacienteId)).findFirst().orElse(null);
+		Leito leito = leitos.stream().filter(l -> l.getPacienteObjectId().equals(pacienteId)).findFirst().orElse(null);
 
 		if (Objects.isNull(leito))
 			throw new PacienteNotFoundException(pacienteId);

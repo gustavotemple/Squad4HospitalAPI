@@ -3,9 +3,13 @@ package com.acelera.squad.four.hospital.controllers;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.acelera.squad.four.hospital.HospitalApplicationTests;
+import com.acelera.squad.four.hospital.configuration.ApplicationConfig;
 import com.acelera.squad.four.hospital.controllers.HospitalController;
 import com.acelera.squad.four.hospital.models.Hospital;
 import com.acelera.squad.four.hospital.repositories.HospitalRepository;
+import com.acelera.squad.four.hospital.service.GeocodeClient;
+import com.acelera.squad.four.hospital.service.HospitalService;
+import com.acelera.squad.four.hospital.service.HospitalServiceImpl;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,26 +23,34 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.http.MediaType;
-import org.bson.types.ObjectId;
 import org.junit.Before;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+import org.bson.types.ObjectId;
+
 @RunWith(SpringRunner.class)
 public class HospitalControllerTest extends HospitalApplicationTests{
 
-	@InjectMocks
 	private HospitalController hospitalController;    
-
+    private HospitalService hospitalService;
+    
     @Mock
-    private HospitalRepository hospialRepository;
+	private GeocodeClient geocodeClient;
+    @Mock
+	private HospitalRepository hospitalRepository;
+    
 
     private MockMvc mockMvc;
     private Hospital hospital;
 
 	@Before
 	public void setup() {
-        hospital = new Hospital( new ObjectId(), "Santa Luzia", "Rua do Java", 10);            
+        hospitalService = new HospitalServiceImpl(geocodeClient, hospitalRepository);
+        hospitalController = new HospitalController(hospitalService);
+
+        hospital = new Hospital("Santa Luzia", "Rua do Java", 10);
+        hospital.set_id(ObjectId.get());
         mockMvc = MockMvcBuilders.standaloneSetup(hospitalController).build();  
         
 	}
@@ -46,7 +58,7 @@ public class HospitalControllerTest extends HospitalApplicationTests{
 
     @Test
     public void deveListarHospitais() throws Exception{
-        String url = "/v1/hospitais/";
+        String url = ApplicationConfig.BASE_URL;
 
         // when        
         MockHttpServletResponse response = mockMvc.perform(get(url)
@@ -60,7 +72,7 @@ public class HospitalControllerTest extends HospitalApplicationTests{
     @Test
     public void deveBuscarHospial() throws Exception {
         String url = "/v1/hospitais/" + hospital.getObjectId() ;
-        Mockito.when(this.hospialRepository.findOne( hospital.getObjectId() )).thenReturn(hospital);
+        Mockito.when(this.hospitalRepository.findOne( hospital.getObjectId() )).thenReturn(hospital);
        
         // when        
         MockHttpServletResponse response = mockMvc.perform(get(url)
@@ -75,7 +87,7 @@ public class HospitalControllerTest extends HospitalApplicationTests{
     @Test
     public void deveListarLeitos() throws Exception{
         String url = "/v1/hospitais/" + hospital.getObjectId() + "/leitos" ;
-        Mockito.when(this.hospialRepository.findOne( hospital.getObjectId() )).thenReturn(hospital);
+        Mockito.when(this.hospitalRepository.findOne( hospital.getObjectId() )).thenReturn(hospital);
        
         // when        
         MockHttpServletResponse response = mockMvc.perform(get(url)

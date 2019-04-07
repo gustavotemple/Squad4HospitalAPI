@@ -4,6 +4,7 @@ import com.acelera.squad.four.hospital.controllers.PacienteController;
 import com.acelera.squad.four.hospital.models.Paciente;
 import com.acelera.squad.four.hospital.repositories.PacienteRepository;
 import com.acelera.squad.four.hospital.service.PacienteService;
+import com.acelera.squad.four.hospital.service.PacienteServiceImpl;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +15,10 @@ import static org.mockito.Mockito.when;
 import com.acelera.squad.four.hospital.HospitalApplicationTests;
 import com.acelera.squad.four.hospital.controllers.HospitalController;
 import com.acelera.squad.four.hospital.models.Hospital;
+import com.acelera.squad.four.hospital.models.Leito;
 import com.acelera.squad.four.hospital.models.Paciente;
 import com.acelera.squad.four.hospital.repositories.HospitalRepository;
+import com.acelera.squad.four.hospital.repositories.LeitoRepository;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,43 +32,65 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.http.MediaType;
-import org.bson.types.ObjectId;
 import org.junit.Before;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+
+import org.bson.types.ObjectId;
+
 @RunWith(SpringRunner.class)
 public class PacienteControllerTest extends HospitalApplicationTests{
 
-	@InjectMocks
-    private PacienteController pacienteController;    
-    
-    @InjectMocks
+    private PacienteController pacienteController;
     private PacienteService pacienteService;
 
     @Mock
     private PacienteRepository pacienteRepository;
+    @Mock
+	private HospitalRepository hospitalRepository;
+    @Mock
+	private LeitoRepository leitorRepository;
 
     private MockMvc mockMvc;    
     private Paciente paciente;
     private Hospital hospital;
+    private Leito leito;
+    
+	Collection<Paciente> pacientes = new ArrayList<Paciente>();
+
+	Collection<Leito> leitos = new ArrayList<Leito>();
 
 	@Before
-	public void setup() {        
-        hospital = new Hospital(new ObjectId(), "Santa Tereza", "Rua do Java", 5);
-        paciente = new Paciente(new ObjectId(), "Roberto Carlos", "11111111111111", Paciente.Type.M );
+	public void setup() {
+		pacienteService = new PacienteServiceImpl(pacienteRepository, hospitalRepository, leitorRepository);
+		pacienteController = new PacienteController(pacienteService);
+		
+        hospital = new Hospital("Santa Tereza", "Rua do Java", 5);
+        hospital.set_id(ObjectId.get());
+        paciente = new Paciente("Roberto Carlos", "11111111111111", Paciente.Type.M );
+        paciente.set_id(ObjectId.get());
+
+		pacientes.add(paciente);
+
+		leito = new Leito(paciente.getObjectId(), new Date(03 / 03 / 2019), null);
+		leitos.add(leito);
+
+		hospital.setPacientes(pacientes);
+		hospital.setLeitos(leitos);
+        
         mockMvc = MockMvcBuilders.standaloneSetup(pacienteController).build();  
         
     }
  
     @Test
     public void deveFazerCheckin() throws Exception{
-        
-        //when(pacienteController.postCheckout(hospital.getObjectId(), paciente.getId())).willReturn(ResponseEntity<"">);
+    	Mockito.when(hospitalRepository.findOne(hospital.getObjectId())).thenReturn(hospital);
 
-        pacienteController.postCheckout(hospital.getObjectId(), paciente.getObjectId());
-
-        String url = "/v1/hospitais/" + hospital.get_id() + "/pacientes/" + paciente.getId() + "/checkin" ;
+        String url = "/v1/hospitais/" + hospital.get_id() + "/pacientes/" + paciente.get_id() + "/checkin" ;
 
         MockHttpServletResponse response = mockMvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -76,11 +101,10 @@ public class PacienteControllerTest extends HospitalApplicationTests{
     }
 
     @Test
-    public void deveFazerCHeckout() throws Exception{
+    public void deveFazerCheckout() throws Exception{
+    	Mockito.when(hospitalRepository.findOne(hospital.getObjectId())).thenReturn(hospital);
 
-        pacienteService.checkout(hospital.getObjectId(),  paciente.getObjectId());
-
-        String url = "/v1/hospitais/" + this.hospital.get_id() + "/pacientes/" + paciente.getId() + "/checkout" ;
+        String url = "/v1/hospitais/" + this.hospital.get_id() + "/pacientes/" + paciente.get_id() + "/checkout" ;
 
         MockHttpServletResponse response = mockMvc.perform(post(url)
                         .contentType(MediaType.APPLICATION_JSON))

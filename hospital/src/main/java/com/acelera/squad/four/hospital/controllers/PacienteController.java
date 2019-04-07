@@ -101,7 +101,7 @@ public class PacienteController {
 
 	@PostMapping("/{paciente}/checkout")
 	@ApiOperation(value = "Realiza o checkout de um paciente")
-	public ResponseEntity<String> postCheckout(@PathVariable("id") ObjectId hospitalId,
+	public ResponseEntity<String> checkout(@PathVariable("id") ObjectId hospitalId,
 			@PathVariable("paciente") ObjectId pacienteId) {
 		pacienteService.checkout(hospitalId, pacienteId);
 
