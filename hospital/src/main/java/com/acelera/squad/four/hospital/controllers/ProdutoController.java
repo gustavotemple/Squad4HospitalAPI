@@ -64,8 +64,20 @@ public class ProdutoController {
 
 	@GetMapping
 	@ApiOperation(value = "Retorna as informacoes dos produtos existentes no estoque")
-	public ResponseEntity<Collection<Produto>> listarProdutos(@PathVariable("id") ObjectId hospitalId) {
+	public ResponseEntity<Collection<Produto>> listarEstoque(@PathVariable("id") ObjectId hospitalId) {
 		return ResponseEntity.ok().body(produtoService.findAll(hospitalId));
+	}
+	
+	@GetMapping("/produtos")
+	@ApiOperation(value = "Retorna as informacoes dos produtos comuns existentes no estoque")
+	public ResponseEntity<Collection<Produto>> listarProdutos(@PathVariable("id") ObjectId hospitalId) {
+		return ResponseEntity.ok().body(produtoService.findAllProdutos(hospitalId));
+	}
+	
+	@GetMapping("/bolsas")
+	@ApiOperation(value = "Retorna as informacoes das bolsas de sangue existentes no estoque")
+	public ResponseEntity<Collection<Produto>> listarBolsas(@PathVariable("id") ObjectId hospitalId) {
+		return ResponseEntity.ok().body(produtoService.findAllBolsas(hospitalId));
 	}
 
 	@PutMapping("/{produto}")

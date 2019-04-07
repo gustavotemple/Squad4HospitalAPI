@@ -4,15 +4,15 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.NotNull;
 
 import org.bson.types.ObjectId;
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.hateoas.ResourceSupport;
 
+import com.acelera.squad.four.hospital.validation.EnumValidator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -29,33 +29,45 @@ import io.swagger.annotations.ApiModelProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ApiModel(description = "Produtos e Bolsas de Sangue do Estoque")
 public class Produto extends ResourceSupport implements Serializable {
-	
+
 	private static final long serialVersionUID = 1L;
 
-	public enum Type {
-		COMUM, SANGUE
+	public enum Tipo {
+		COMUM("COMUM"), SANGUE("SANGUE");
+
+		private final String tipo;
+
+		Tipo(final String tipo) {
+			this.tipo = tipo;
+		}
+
+		@Override
+		public String toString() {
+			return tipo;
+		}
 	}
 
-	@Id	@JsonProperty(access = Access.READ_ONLY)
+	@Id
+	@JsonProperty(access = Access.READ_ONLY)
 	private ObjectId _id;
-	@NotEmpty(message = "Nome do produto nao preenchido")
+	@NotBlank(message = "Nome do produto nao preenchido")
 	@ApiModelProperty(notes = "Nome do item de estoque")
 	private String nome;
 	@JsonInclude(Include.NON_NULL)
 	@ApiModelProperty(notes = "Descricao do item de estoque")
 	private String descricao;
-	@DecimalMin(value = "1")
-	@NotNull(message = "Quantidade do produto nao preenchido")
+	@DecimalMin(value = "1", message = "A quantidade precisa ser maior que uma unidade")
 	@ApiModelProperty(notes = "Quantidade do item de estoque")
 	private int quantidade;
-	@NotEmpty(message = "Tipo do produto nao preenchido")
+	@NotBlank(message = "Tipo do produto nao preenchido")
 	@ApiModelProperty(notes = "Tipo do item de estoque")
-	private Produto.Type tipo;
+	@EnumValidator(enumClazz = Tipo.class, message = "O estoque apenas suporta produtos do tipo COMUM e SANGUE")
+	private String tipo;
 
 	public Produto() {
 	}
 
-	public Produto(String nome, String descricao, int quantidade, Produto.Type tipo) {
+	public Produto(String nome, String descricao, int quantidade, String tipo) {
 		this.nome = nome;
 		this.descricao = descricao;
 		this.quantidade = quantidade;
@@ -66,7 +78,7 @@ public class Produto extends ResourceSupport implements Serializable {
 	public String get_id() {
 		return _id.toHexString();
 	}
-	
+
 	@JsonIgnore
 	public ObjectId getObjectId() {
 		return _id;
@@ -102,11 +114,11 @@ public class Produto extends ResourceSupport implements Serializable {
 		this.quantidade = quantidade;
 	}
 
-	public Produto.Type getTipo() {
+	public String getTipo() {
 		return tipo;
 	}
 
-	public void setTipo(Produto.Type tipo) {
+	public void setTipo(String tipo) {
 		this.tipo = tipo;
 	}
 

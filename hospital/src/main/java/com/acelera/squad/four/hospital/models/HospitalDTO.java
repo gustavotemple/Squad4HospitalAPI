@@ -1,9 +1,8 @@
 package com.acelera.squad.four.hospital.models;
 
 import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.NotNull;
 
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -15,14 +14,14 @@ import io.swagger.annotations.ApiModelProperty;
 public class HospitalDTO {
 
 	@ApiModelProperty(notes = "Nome do hospital")
-	@NotEmpty(message = "Nome do hospital nao preenchido")
+	@NotBlank(message = "Nome do hospital nao preenchido")
 	private String nome;
 	@ApiModelProperty(notes = "Endereco do hospital")
-	@NotEmpty(message = "Endereco do hospital nao preenchido")
+	@NotBlank(message = "Endereco do hospital nao preenchido")
 	private String endereco;
 	@DecimalMin(value = "1")
 	@ApiModelProperty(notes = "Leitos totais do hospital")
-	@NotNull(message = "Leitos totais do hospital nao preenchido")
+	@NotBlank(message = "Leitos totais do hospital nao preenchido")
 	private Integer leitosTotais;
 
 	public HospitalDTO(String nome, String endereco, Integer leitosTotais) {

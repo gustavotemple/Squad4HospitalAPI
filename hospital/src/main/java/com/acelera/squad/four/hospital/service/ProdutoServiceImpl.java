@@ -20,7 +20,7 @@ public class ProdutoServiceImpl implements ProdutoService {
 
 	private ProdutoRepository produtoRepository;
 	private HospitalRepository hospitalRepository;
-	
+
 	@Autowired
 	public ProdutoServiceImpl(ProdutoRepository produtoRepository, HospitalRepository hospitalRepository) {
 		this.produtoRepository = produtoRepository;
@@ -44,16 +44,16 @@ public class ProdutoServiceImpl implements ProdutoService {
 	}
 
 	@Override
-	public Produto getProduto(ObjectId hospitalId, ObjectId produtoId) {		
+	public Produto getProduto(ObjectId hospitalId, ObjectId produtoId) {
 		final Produto produto = findProdutoBy(findHospitalBy(hospitalId), produtoId);
-		
+
 		return new Produto().build(produto);
 	}
 
 	@Override
 	public Produto updateProduto(ObjectId hospitalId, Produto produtoUpdate, ObjectId produtoId) {
 		final Produto produto = findProdutoBy(findHospitalBy(hospitalId), produtoId);
-		
+
 		produto.setNome(produtoUpdate.getNome());
 		produto.setDescricao(produtoUpdate.getDescricao());
 		produto.setQuantidade(produtoUpdate.getQuantidade());
@@ -66,12 +66,12 @@ public class ProdutoServiceImpl implements ProdutoService {
 	@Override
 	public void deleteProduto(ObjectId hospitalId, ObjectId produtoId) {
 		final Hospital hospital = findHospitalBy(hospitalId);
-		
+
 		final Produto produto = findProdutoBy(hospital, produtoId);
-		
+
 		hospital.getEstoque().remove(produto);
 		hospitalRepository.save(hospital);
-		
+
 		produtoRepository.delete(produtoId);
 	}
 
@@ -83,8 +83,8 @@ public class ProdutoServiceImpl implements ProdutoService {
 	}
 
 	private Produto findProdutoBy(Hospital hospital, ObjectId produtoId) {
-		final Produto produto = hospital.getEstoque().stream().filter(p -> produtoId.equals(p.getObjectId())).findFirst()
-				.orElse(null);
+		final Produto produto = hospital.getEstoque().stream().filter(p -> produtoId.equals(p.getObjectId()))
+				.findFirst().orElse(null);
 		if (Objects.isNull(produto))
 			throw new ProdutoNotFoundException(produtoId);
 		return produto;
@@ -95,6 +95,26 @@ public class ProdutoServiceImpl implements ProdutoService {
 		if (Objects.isNull(hospital))
 			throw new HospitalNotFoundException(hospitalId);
 		return hospital;
+	}
+
+	@Override
+	public Collection<Produto> findAllBolsas(ObjectId hospitalId) {
+		Collection<Produto> produtos = produtoRepository.findByTipo(Produto.Tipo.SANGUE);
+
+		if (produtos.isEmpty())
+			throw new ProdutoNotFoundException();
+
+		return produtos;
+	}
+
+	@Override
+	public Collection<Produto> findAllProdutos(ObjectId hospitalId) {
+		Collection<Produto> produtos = produtoRepository.findByTipo(Produto.Tipo.COMUM);
+
+		if (produtos.isEmpty())
+			throw new ProdutoNotFoundException();
+
+		return produtos;
 	}
 
 }

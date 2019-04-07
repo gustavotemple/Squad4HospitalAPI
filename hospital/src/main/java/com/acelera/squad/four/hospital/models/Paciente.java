@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 import org.bson.types.ObjectId;
-import org.hibernate.validator.constraints.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.TypeAlias;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -36,11 +36,11 @@ public class Paciente extends ResourceSupport implements Serializable {
 
 	@Id @JsonProperty(access = Access.READ_ONLY)
 	private ObjectId _id;
-	@NotEmpty(message = "Nome do paciente nao preenchido")
+	@NotBlank(message = "Nome do paciente nao preenchido")
 	@ApiModelProperty(notes = "Nome do paciente")
 	private String nome;
 	@Indexed(name="cpfPaciente", unique=true)
-	@NotEmpty(message = "CPF do paciente nao preenchido")
+	@NotBlank(message = "CPF do paciente nao preenchido")
 	@ApiModelProperty(notes = "CPF do paciente")
 	private String cpf;
 	@JsonInclude(Include.NON_NULL)

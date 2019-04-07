@@ -18,4 +18,8 @@ public interface ProdutoService {
 
 	public Collection<Produto> findAll(ObjectId hospitalId);
 
+	public Collection<Produto> findAllBolsas(ObjectId hospitalId);
+
+	public Collection<Produto> findAllProdutos(ObjectId hospitalId);
+
 }
