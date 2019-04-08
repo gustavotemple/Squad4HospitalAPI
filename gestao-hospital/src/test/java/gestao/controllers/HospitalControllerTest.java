@@ -2,7 +2,7 @@ package gestao.controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import gestao.ApplicationTests;
+import gestao.ApplicationTest;
 import gestao.configuration.ApplicationConfig;
 import gestao.controllers.HospitalController;
 import gestao.models.Hospital;
@@ -30,7 +30,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import org.bson.types.ObjectId;
 
 @RunWith(SpringRunner.class)
-public class HospitalControllerTest extends ApplicationTests{
+public class HospitalControllerTest extends ApplicationTest{
 
 	private HospitalController hospitalController;    
     private HospitalService hospitalService;

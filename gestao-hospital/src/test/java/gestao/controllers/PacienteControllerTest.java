@@ -1,6 +1,6 @@
 package gestao.controllers;
 
-import gestao.ApplicationTests;
+import gestao.ApplicationTest;
 import gestao.controllers.HospitalController;
 import gestao.controllers.PacienteController;
 import gestao.models.Hospital;
@@ -41,7 +41,7 @@ import java.util.Date;
 import org.bson.types.ObjectId;
 
 @RunWith(SpringRunner.class)
-public class PacienteControllerTest extends ApplicationTests{
+public class PacienteControllerTest extends ApplicationTest{
 
     private PacienteController pacienteController;
     private PacienteService pacienteService;
