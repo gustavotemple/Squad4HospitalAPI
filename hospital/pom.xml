@@ -8,10 +8,10 @@
 		<version>1.5.19.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.acelera.squad.four</groupId>
-	<artifactId>hospital</artifactId>
+	<groupId>gestao</groupId>
+	<artifactId>gestao-hospital</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>hospital</name>
+	<name>gestao-hospital</name>
 	<description>Squad 4 Hospital API</description>
 
 	<properties>
