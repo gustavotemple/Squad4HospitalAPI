@@ -23,7 +23,13 @@ public class Result {
     private String formattedAddress;
     @JsonProperty("geometry")
     private Geometry geometry;
-    @JsonProperty("place_id")
+    
+    public Result(Geometry geometry) {
+		super();
+		this.geometry = geometry;
+	}
+
+	@JsonProperty("place_id")
     private String placeId;
     @JsonProperty("plus_code")
     private PlusCode plusCode;

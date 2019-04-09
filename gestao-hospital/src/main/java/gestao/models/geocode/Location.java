@@ -12,7 +12,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 })
 public class Location {
 
-    @JsonProperty("lat")
+    public Location(Float lat, Float lng) {
+		super();
+		this.lat = lat;
+		this.lng = lng;
+	}
+
+	@JsonProperty("lat")
     private Float lat;
     @JsonProperty("lng")
     private Float lng;

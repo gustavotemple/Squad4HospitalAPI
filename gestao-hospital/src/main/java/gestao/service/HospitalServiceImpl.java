@@ -171,6 +171,7 @@ public class HospitalServiceImpl implements HospitalService {
 
 	@Override
 	public Collection<Hospital> findAll() {
+		
 		return hospitalRepository.findAll();
 	}
 
