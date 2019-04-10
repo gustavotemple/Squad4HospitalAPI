@@ -1,7 +1,6 @@
 
 package gestao.models.geocode;
 
-import java.util.Arrays;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -39,9 +38,5 @@ public class Geocode {
         this.status = status;
     }
 
-	public Geocode(List<Result> results) {
-		super();
-		this.results = results;
-	}
-    
+	    
  }

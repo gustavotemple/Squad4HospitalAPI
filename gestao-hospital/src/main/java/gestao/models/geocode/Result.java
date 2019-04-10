@@ -24,11 +24,7 @@ public class Result {
     @JsonProperty("geometry")
     private Geometry geometry;
     
-    public Result(Geometry geometry) {
-		super();
-		this.geometry = geometry;
-	}
-
+  
 	@JsonProperty("place_id")
     private String placeId;
     @JsonProperty("plus_code")

@@ -20,11 +20,7 @@ public class Geometry {
     @JsonProperty("viewport")
     private Viewport viewport;
 
-    public Geometry(Location location) {
-		super();
-		this.location = location;
-	}
-
+  
 	@JsonProperty("location")
     public Location getLocation() {
         return location;
