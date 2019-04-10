@@ -11,6 +11,8 @@ import gestao.repositories.ProdutoRepository;
 
 import java.util.Collection;
 import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,7 +101,10 @@ public class ProdutoServiceImpl implements ProdutoService {
 
 	@Override
 	public Collection<Produto> findAllBolsas(ObjectId hospitalId) {
-		Collection<Produto> produtos = produtoRepository.findByTipo(Produto.Tipo.SANGUE);
+		final Hospital hospital = findHospitalBy(hospitalId);
+		Collection<Produto> produtos =  hospital.getEstoque().stream()
+				.filter(p -> p.getTipo().equals("SANGUE"))
+				.collect(Collectors.toList());
 
 		if (produtos.isEmpty())
 			throw new ProdutoNotFoundException();
@@ -109,7 +114,10 @@ public class ProdutoServiceImpl implements ProdutoService {
 
 	@Override
 	public Collection<Produto> findAllProdutos(ObjectId hospitalId) {
-		Collection<Produto> produtos = produtoRepository.findByTipo(Produto.Tipo.COMUM);
+		final Hospital hospital = findHospitalBy(hospitalId);
+		Collection<Produto> produtos =  hospital.getEstoque().stream()
+				.filter(p -> p.getTipo().equals("COMUM"))
+				.collect(Collectors.toList());
 
 		if (produtos.isEmpty())
 			throw new ProdutoNotFoundException();
