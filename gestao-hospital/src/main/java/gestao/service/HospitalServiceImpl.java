@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,18 +80,16 @@ public class HospitalServiceImpl implements HospitalService {
 
 		final Point point = buscaCoordenadasPor(hospital.getEndereco());
 
-		final List<Hospital> hospitals = hospitalRepository.findByLocalizacaoNear(point);
+		final List<Hospital> hospitals = hospitalRepository.findByLocalizacaoNear(point).stream()
+				.filter(hosp -> !hosp.getObjectId().equals(id)).collect(Collectors.toList());		
 
-		if (hospitals.isEmpty())
-			throw new HospitalNotFoundException();
+		Hospital hospitalMaisProximo = hospitals.stream().filter(produtosDisponiveis()).findFirst().orElse(null);
 
-		try {
-			hospital = hospitals.stream().filter(produtosDisponiveis()).skip(1).findFirst().get();
-		} catch (NoSuchElementException e) {
+		if (hospitalMaisProximo == null) {
 			throw new HospitalNotFoundException();
 		}
 
-		return hospital;
+		return hospitalMaisProximo;
 	}
 
 	private Predicate<Hospital> produtosDisponiveis() {
