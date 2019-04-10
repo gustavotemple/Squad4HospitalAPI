@@ -3,7 +3,7 @@ package gestao.service;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
-import java.util.List;
+
 
 import org.bson.types.ObjectId;
 import org.junit.Before;
@@ -39,16 +39,26 @@ public class HospitalServiceTest {
 	private final String ENDERECO = "Av. Albert Einstein, 627 - Jardim Leonor, São Paulo - SP";
 	private static final String KEY = "AIzaSyAczcT1dO-iPGi273Mu3fr9uxJoUgArfyI";
 
-	private Location location = new Location(-23.6000507F, 46.7152458F);
-	private Geometry geometry = new Geometry(location);
-	private List<Result> result = Arrays.asList(new Result(geometry));
-	private Geocode geocode = new Geocode(result);
+	
+	  private Location location = new Location();	   
+	  private Geometry geometry = new Geometry(); 
+	  private Result result = new Result();	 
+	  private Geocode geocode = new Geocode();
+	
 
 	@Before
 	public void setUp() {
 		hospitalService = new HospitalServiceImpl(geocodeClient, hospitalRepository);		
 		hospital = new Hospital("Hospital Israelita Albert Einstein", ENDERECO, 10);
 		hospital.set_id(ObjectId.get());
+		
+		location.setLat(-23.6000507F);
+		location.setLng(46.7152458F);
+		geometry.setLocation(location);
+		result.setGeometry(geometry);		
+		geocode.setResults(Arrays.asList(result));
+	
+		
 	}
 
 	@Test
